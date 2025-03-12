@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Scan-Failed.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
