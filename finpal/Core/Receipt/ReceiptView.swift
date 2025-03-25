@@ -8,48 +8,46 @@
 import SwiftUI
 import MapKit
 
-//RoundedRectangle(cornerRadius: 16)
-//                        .frame(maxWidth: .infinity)
-//                        .frame(height: 500)
-//                        .foregroundStyle(Color.white)
-//                        .padding()
-//                        .overlay {
-//                            VStack(spacing: 20) {
-//
-//                                CategoryDropdownView(selectedCategory: $selectedCategory, isExpanded: $isExpanded)
-//                                paymentMethodSection
-//                                addressSection
-//                            }
-//                            .padding()
-//                        }
-
 struct ReceiptView: View {
-    @State var receiptData: ReceiptData
-    @State private var showError: Bool = false
+    @Environment(ReceiptManager.self) private var receiptManager
     
-    @State private var selectedCategory: Category = .other
-    @State private var isCategorySheetPresented: Bool = false
+    @StateObject private var viewModel: ScannedReceiptViewModel
+    
+    @State private var noteText: String = ""
+    @State private var isSaving: Bool = false
+    @State private var showingError: Bool = false
+    
+    init(receipt: ReceiptModel) {
+        self._viewModel = StateObject(wrappedValue: ScannedReceiptViewModel(receipt: receipt))
+    }
     
     var body: some View {
         VStack {
             receiptDetailsToolbar
             
             ScrollView {
-                // Receipt Details
-                ReceiptDataView(data: receiptData)
+                ReceiptDataView(viewModel: viewModel)
                 
-                categorySelectionView
+                Divider()
+                    .padding(.vertical, 24)
                 
+                VStack(spacing: 32) {
+                    VStack(spacing: 8) {
+                        CategoryButtonView(selectedCategory: $viewModel.category)
+                        
+                        NoteButtonView(noteText: $noteText)
+                    }
+                    
+                    PaymentInformationView(viewModel: viewModel)
+                    
+                    WarrantySectionView()
+                }
+                
+                buttonsSection
             }
-            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.gray5)
-        .sheet(isPresented: $isCategorySheetPresented) {
-            SelectCategoryView(selectedCategory: $selectedCategory)
-                .presentationDetents([.fraction(0.65)])
-                .presentationDragIndicator(.visible)
-        }
     }
     
     private var receiptDetailsToolbar: some View {
@@ -62,10 +60,11 @@ struct ReceiptView: View {
             
             Spacer()
             
-            Button {
-                
+            NavigationLink {
+                EditReceiptView(viewModel: viewModel)
+                    .navigationBarBackButtonHidden()
             } label: {
-                Image(systemName: "gearshape")
+                Image(systemName: "square.and.pencil")
             }
         }
         .font(.system(size: 20, weight: .medium))
@@ -77,136 +76,86 @@ struct ReceiptView: View {
         .padding(16)
     }
     
-    private var categorySelectionView: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .frame(maxWidth: .infinity)
-            .frame(height: 64)
-            .foregroundStyle(Color.white)
-            .overlay {
-                HStack(spacing: 8) {
-                    // Category Icon
-                    ZStack {
-                        Circle()
-                            .frame(width: 40, height: 40)
-                            .foregroundStyle(Color.gray5)
-                        
-                        Image(systemName: selectedCategory.iconName)
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(Color.gray60)
-                    }
+    private var buttonsSection: some View {
+        VStack {
+            HStack {
+                Text("Save Receipt")
+                
+                Image(systemName: "checkmark")
+            }
+            .callToActionButton()
+            .anyButton(.press) {
+                onSavePressed()
+            }
+            .padding([.horizontal, .top])
+            
+            Button {
+                
+            } label: {
+                HStack {
+                    Image(systemName: "trash")
+                        .font(.system(size: 16, weight: .medium))
                     
-                    // Category Text
-                    Text("Category")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.gray80)
-                    
-                    Spacer()
-                    
-                    // Selected Category
-                    Text(selectedCategory.rawValue)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.gray80)
-                    
-                    // Chevron
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(Color.gray60)
+                    Text("Delete Receipt")
+                        .font(.system(size: 14, weight: .semibold))
                 }
-                .padding()
+                .foregroundStyle(Color.destructive60)
             }
             .padding()
-            .mediumShadow()
-            .onTapGesture {
-                onCategoryButtonPressed()
-            }
-    }
-    
-    private var noteButtonView: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .frame(maxWidth: .infinity)
-            .frame(height: 64)
-            .foregroundStyle(Color.white)
-            .overlay {
-                HStack(spacing: 8) {
-                    // Note Icon
-                    ZStack {
-                        Circle()
-                            .frame(width: 40, height: 40)
-                            .foregroundStyle(Color.gray5)
-                        
-                        Image(systemName: "note.text")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(Color.gray60)
-                    }
-                    
-                    // Note Title
-                    Text("Note")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.gray80)
-                    
-                    Spacer()
-                    
-                    // Selected Category
-                    Text(selectedCategory.rawValue)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.gray80)
-                    
-                    // Chevron
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(Color.gray60)
-                }
-                .padding()
-            }
-            .padding()
-            .mediumShadow()
-            .onTapGesture {
-                onCategoryButtonPressed()
-            }
-    }
-    
-    private var paymentMethodSection: some View {
-        VStack(alignment: .leading) {
-            Text("Payment Method")
-                .font(.subheadline)
-                .fontWeight(.semibold)
-            
-            HStack(spacing: 16) {
-                Image(.mastercardLogo)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 58, height: 40)
-                
-                VStack(alignment: .leading) {
-                    Text("Mastercard")
-                    
-                    Text("5566 8990 XXXX XXXX")
-                }
-                .font(.caption)
-                
-                Spacer()
-            }
-            .padding(.horizontal)
         }
-        .padding()
     }
     
-    private var addressSection: some View {
-        VStack(alignment: .leading) {
-            Text("Address")
-                .font(.subheadline)
-                .fontWeight(.semibold)
+    private func onSavePressed() {
+        isSaving = true
+        
+        Task {
+            do {
+                guard let receiptId = Int(viewModel.receiptId) else {
+                    showingError = true
+                    isSaving = false
+                    return
+                }
+                
+                guard let vendorName = viewModel.vendorName, !vendorName.isEmpty else {
+                    showingError = true
+                    isSaving = false
+                    return
+                }
+                
+                guard let vendorLogo = viewModel.vendorLogo, let logoData = vendorLogo.jpegData(compressionQuality: 0.9) else {
+                    showingError = true
+                    isSaving = false
+                    return
+                }
+                
+                let vendor = await PhotoViewModel.saveImage(
+                    receiptId: viewModel.receiptId,
+                    vendorName: vendorName,
+                    data: logoData
+                )
+                
+                let receipt = ReceiptModel(
+                    id: receiptId,
+                    category: viewModel.category?.rawValue,
+                    date: viewModel.date.description,
+                    invoiceNumber: viewModel.invoiceNumber,
+                    isDuplicate: false,
+                    lineItems: viewModel.lineItems,
+                    payment: viewModel.getPayment(),
+                    subtotal: viewModel.subtotal,
+                    tax: viewModel.tax,
+                    total: viewModel.total,
+                    vendor: vendor
+                )
+                
+                try await receiptManager.createNewReceipt(receipt: receipt)
+                
+            } catch {
+                print("[finpal - ERROR] Failed to save receipt: \(error.localizedDescription)")
+            }
             
-            Map()
-                .frame(maxWidth: .infinity)
-                .frame(height: 200)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+            isSaving = false
         }
-        .padding(.horizontal)
-    }
-    
-    private func onCategoryButtonPressed() {
-        isCategorySheetPresented = true
     }
 }
 
@@ -216,7 +165,7 @@ private struct PreviewView: View {
             ZStack {
                 Color.gray5.ignoresSafeArea()
                 
-                ReceiptView(receiptData: .mock)
+                ReceiptView(receipt: .mock)
             }
             .toolbar(.hidden)
         }
@@ -225,4 +174,5 @@ private struct PreviewView: View {
 
 #Preview {
     PreviewView()
+        .previewEnvironment()
 }

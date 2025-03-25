@@ -1,5 +1,5 @@
 {
-  "originHash" : "1e4bc625b6e1dce492f56d90b1bac28795c5b04dff1b411bf588a95aae7c023c",
+  "originHash" : "1d3ed91c653542c86b149ac28d72985f508a8b4381389ec026f4e6a26b7a9d22",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -142,7 +142,7 @@
       "location" : "https://repo.veryfi.com/shared/lens/veryfi-lens-spm.git",
       "state" : {
         "branch" : "master",
-        "revision" : "a0c2ceb0b232f96634ac1039f1b12ad1c78376ed"
+        "revision" : "7d7e17cd55fe0fc566241ae8ee00320bc8422ca3"
       }
     }
   ],

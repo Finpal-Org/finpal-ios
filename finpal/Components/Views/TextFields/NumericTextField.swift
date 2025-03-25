@@ -38,16 +38,19 @@ struct NumericTextInputViewModifier: ViewModifier {
 struct NumericTextField<Value: Numeric>: View {
     let title: String
     let mode: NumericTextInputMode
+    let onUpdate: () -> Void
     
     @Binding var value: Value
     
     @State private var text: String = ""
     
-    init(_ title: String, mode: NumericTextInputMode = .number, value: Binding<Value>) {
+    init(_ title: String, mode: NumericTextInputMode = .number, value: Binding<Value>, _ onUpdate: @escaping () -> Void) {
         self.title = title
         self.mode = mode
         self._value = value
+        self.onUpdate = onUpdate
     }
+    
     
     var body: some View {
         TextField(title,
@@ -59,6 +62,9 @@ struct NumericTextField<Value: Numeric>: View {
             guard let numericValue = newValue as? Value else { return }
             value = numericValue
         }
+        .onChange(of: text) { _, _ in
+            onUpdate()
+        }
     }
 }
 
@@ -68,9 +74,13 @@ private struct PreviewView: View {
     
     var body: some View {
         VStack {
-            NumericTextField("Int", value: $intValue)
+            NumericTextField("Int", value: $intValue) {
+                
+            }
             
-            NumericTextField("Double", mode: .decimal, value: $doubleValue)
+            NumericTextField("Double", mode: .decimal, value: $doubleValue) {
+                
+            }
         }
         .padding()
         .textFieldStyle(.roundedBorder)

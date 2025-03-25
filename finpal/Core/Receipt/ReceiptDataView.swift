@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReceiptDataView: View {
-    let data: ReceiptData
+    @ObservedObject var viewModel: ScannedReceiptViewModel
     
     var body: some View {
         VStack {
@@ -28,23 +28,24 @@ struct ReceiptDataView: View {
         }
         .padding()
         .shadow(color: .black.opacity(0.09), radius: 8, x: 0, y: 4)
+        .mediumShadow()
     }
     
     private var headerView: some View {
         VStack(spacing: 24) {
-            ImageLoaderView(urlString: data.vendor.logo)
+            ImageLoaderView(urlString: viewModel.vendorImage)
                 .frame(width: 75, height: 75)
                 .padding(.top, 32)
                 .offset(y: 15)
             
             VStack(spacing: 8) {
-                Text(data.vendor.name)
+                Text(viewModel.vendorName ?? "Not Set")
                     .font(.title)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.gray80)
                     .multilineTextAlignment(.center)
                 
-                Text(data.dateToString)
+                Text(formattedDateWithBullet(date: viewModel.date))
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.gray80)
@@ -65,7 +66,7 @@ struct ReceiptDataView: View {
                 .stroke(Color.gray60, lineWidth: 3)
                 .frame(width: 200, height: 75)
                 .overlay {
-                    Text("#\(data.invoiceNumber)")
+                    Text("#\(viewModel.invoiceNumber ?? "")")
                         .font(.callout)
                         .fontWeight(.semibold)
                         .foregroundStyle(Color.gray60)
@@ -81,7 +82,7 @@ struct ReceiptDataView: View {
     
     private var orderItemsListView: some View {
         LazyVStack(spacing: 16) {
-            ForEach(data.lineItems) { item in
+            ForEach(viewModel.lineItems) { item in
                 receiptItem(
                     quantity: item.quantity,
                     name: item.description,
@@ -107,7 +108,7 @@ struct ReceiptDataView: View {
             
             Spacer()
             
-            Text("SAR \(String(format: "%.2f", price))")
+            Text(getPriceString(for: price))
         }
         .padding(.horizontal)
     }
@@ -119,17 +120,17 @@ struct ReceiptDataView: View {
                 
                 Spacer()
                 
-                Text(data.subtotalString)
+                Text(getPriceString(for: viewModel.subtotal))
             }
             .font(.title3)
             .foregroundStyle(Color.gray80)
             
             HStack {
-                Text("Tax")
+                Text("VAT (15%)")
                 
                 Spacer()
                 
-                Text(data.taxString)
+                Text(getPriceString(for: viewModel.tax))
             }
             .font(.title3)
             .foregroundStyle(Color.gray80)
@@ -139,13 +140,32 @@ struct ReceiptDataView: View {
                 
                 Spacer()
                 
-                Text(data.totalString)
+                Text(getPriceString(for: viewModel.total))
             }
             .font(.title2)
             .fontWeight(.semibold)
             .foregroundStyle(Color.gray80)
         }
         .padding()
+    }
+    
+    private func getPriceString(for value: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.currencyCode = "SAR"
+        formatter.numberStyle = .currency
+        return formatter.string(from: NSNumber(value: value)) ?? ""
+    }
+    
+    private func formattedDateWithBullet(date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        let dateString = dateFormatter.string(from: date)
+        
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateFormat = "hh:mm a"
+        let timeString = timeFormatter.string(from: date)
+        
+        return "\(dateString) • \(timeString)"
     }
     
 }
@@ -162,5 +182,5 @@ fileprivate struct Line: Shape {
 }
 
 #Preview {
-    ReceiptDataView(data: .mock)
+    ReceiptDataView(viewModel: ScannedReceiptViewModel(receipt: .mock))
 }

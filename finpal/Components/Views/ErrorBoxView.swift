@@ -21,8 +21,7 @@ struct ErrorBoxView: View {
                 .foregroundStyle(.destructive60)
             
             Text(title)
-                .font(.callout)
-                .fontWeight(.bold)
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.gray80)
             
             Spacer()

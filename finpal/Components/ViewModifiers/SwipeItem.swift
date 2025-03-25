@@ -103,26 +103,30 @@ struct SwipeItem<Content: View, Left: View, Right: View>: View {
 }
 
 private struct PreviewView: View {
-    @State private var lineItem: LineItem = .mock
+    @State private var lineItem: LineItemModel = .mock
     
     var body: some View {
         VStack {
-            SwipeItem(content: {
-                LineItemRowView(lineItem: $lineItem)
-            }, left: {
-                ZStack {
-                    
-                }
-            }, right: {
-                ZStack {
-                    Rectangle()
-                        .fill(Color.red)
-                    
-                    Image(systemName: "trash.circle")
-                        .foregroundColor(.white)
-                        .font(.largeTitle)
-                }
-            }, itemHeight: 50)
+            SwipeItem(
+                content: {
+                    LineItemRowView(lineItem: $lineItem, onUpdate: { })
+                },
+                left: {
+                    ZStack {
+                        
+                    }
+                },
+                right: {
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.red)
+                        
+                        Image(systemName: "trash.circle")
+                            .foregroundColor(.white)
+                            .font(.largeTitle)
+                    }
+                },
+                itemHeight: 50)
         }
     }
 }

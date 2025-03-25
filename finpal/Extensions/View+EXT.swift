@@ -57,4 +57,11 @@ extension View {
             .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 4)
             .shadow(color: .black.opacity(0.02), radius: 16, x: 0, y: 8)
     }
+    
+    func limitText(_ text: Binding<String>, to characterLimit: Int) -> some View {
+        self
+            .onChange(of: text.wrappedValue) { _, _ in
+                text.wrappedValue = String(text.wrappedValue.prefix(characterLimit))
+            }
+    }
 }

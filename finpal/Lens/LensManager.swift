@@ -9,7 +9,7 @@ import UIKit
 import VeryfiLens
 
 class LensManager {
-    typealias EventListener = ((_ json: [String: Any], _ receipt: Receipt?) -> Void)
+    typealias EventListener = ((_ json: [String: Any], _ document: DocumentModel?) -> Void)
     var eventListener: EventListener?
     
     func configure() {
@@ -29,6 +29,7 @@ class LensManager {
         settings.autoCaptureIsOn = true
         settings.documentTypes = ["receipt"]
         settings.dataExtractionEngine = .cloudAPI
+        settings.parseAddressIsOn = true
         
         VeryfiLens.shared().configure(with: credentials, settings: settings)
     }
@@ -62,6 +63,24 @@ class LensManager {
             return nil
         }
     }
+    
+    func getData(from json: [String : Any]) -> DocumentModel? {
+        guard let data = getJsonData(from: json) else { return nil }
+        
+        do {
+            let decodedDocument = try JSONDecoder().decode(DocumentModel.self, from: data)
+            print("[DEBUG] Successfully decoded DocumentModel.")
+            return decodedDocument
+        } catch {
+            print("[DEBUG] Failed to decode DocumentModel.")
+            return nil
+        }
+    }
+    
+    func getJsonData(from json: [String: Any]) -> Data? {
+        let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
+        return jsonData
+    }
 }
 
 extension LensManager: VeryfiLensDelegate {
@@ -75,11 +94,16 @@ extension LensManager: VeryfiLensDelegate {
     }
     
     func veryfiLensSuccess(_ json: [String: Any]) {
-        if let document = decodeReceipt(from: json) {
+        if let document = getData(from: json) {
             eventListener?(json, document)
         } else {
             print("[ERROR] Failed to decode receipt")
         }
+//        if let document = decodeReceipt(from: json) {
+//            eventListener?(json, document)
+//        } else {
+//            print("[ERROR] Failed to decode receipt")
+//        }
     }
     
     func veryfiLensUpdate(_ json: [String: Any]) {

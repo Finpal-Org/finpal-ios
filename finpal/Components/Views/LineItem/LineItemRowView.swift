@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct LineItemRowView: View {
-    @Binding var lineItem: LineItem
+    @Binding var lineItem: LineItemModel
+    var onUpdate: () -> Void
     
     enum FocusedField {
         case quantity
@@ -20,7 +21,7 @@ struct LineItemRowView: View {
     
     var body: some View {
         HStack {
-            NumericTextField("-", value: $lineItem.quantity)
+            NumericTextField("-", value: $lineItem.quantity, onUpdate)
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(Color.gray60)
                 .focused($focusedField, equals: .quantity)
@@ -44,7 +45,7 @@ struct LineItemRowView: View {
                         .fill(Color.white)
                 )
             
-            NumericTextField("0.00", mode: .decimal, value: $lineItem.total)
+            NumericTextField("0.00", mode: .decimal, value: $lineItem.total, onUpdate)
                 .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(Color.gray60)
                 .focused($focusedField, equals: .price)
@@ -72,22 +73,20 @@ struct LineItemRowView: View {
     }
 }
 
-private struct PreviewView: View {
-    @State private var lineItems: [LineItem] = LineItem.mocks
+#Preview {
+    @Previewable @State var lineItems: [LineItemModel] = LineItemModel.mocks
+    @Previewable @State var isEditing: Bool = false
     
-    var body: some View {
-        ZStack {
-            Color.gray5.ignoresSafeArea()
-            
-            VStack {
-                ForEach($lineItems) { $item in
-                    LineItemRowView(lineItem: $item)
-                }
-            }
+    VStack {
+        
+        ForEach($lineItems) { $item in
+            LineItemRowView(lineItem: $item, onUpdate: {
+                isEditing = true
+            })
+        }
+        
+        if isEditing {
+            Text("Editing...")
         }
     }
-}
-
-#Preview {
-    PreviewView()
 }
