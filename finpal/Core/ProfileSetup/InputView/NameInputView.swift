@@ -7,53 +7,20 @@
 
 import SwiftUI
 
-struct FinpalProgressViewStyle: ProgressViewStyle {
-    
-    func makeBody(configuration: Configuration) -> some View {
-        ProgressView(configuration)
-            .accentColor(Color.brand60)
-            .frame(height: 8.0)
-            .scaleEffect(x: 1, y: 2, anchor: .center)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
-            .padding(.horizontal)
-    }
-}
-
 struct NameInputView: View {
-    @State private var fullName: String = ""
+    var size: CGSize
+    
+    @Binding var currentIndex: Int
+    @Binding var fullName: String
     
     var body: some View {
         VStack {
-            toolbarView
-            
             Spacer()
             
             textFieldView
             
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.gray5)
-    }
-    
-    private var toolbarView: some View {
-        HStack {
-            Image(systemName: "chevron.left")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(Color.gray80)
-            
-            ProgressView(value: 0.8)
-                .progressViewStyle(FinpalProgressViewStyle())
-            
-            Text("Skip")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.brand60)
-                .anyButton {
-                    
-                }
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
     }
     
     private var textFieldView: some View {
@@ -62,6 +29,7 @@ struct NameInputView: View {
                 .multilineTextAlignment(.center)
                 .font(.system(size: 30, weight: .bold))
                 .foregroundStyle(Color.gray80)
+                .addTitleAnimation(size: size, index: 0, currentIndex: currentIndex)
             
             TextField("Full Name", text: $fullName)
                 .multilineTextAlignment(.center)
@@ -76,6 +44,7 @@ struct NameInputView: View {
                         .strokeBorder(Color.gray30, lineWidth: 1)
                 }
                 .padding(.horizontal)
+                .addSubtitleAnimation(size: size, index: 0, currentIndex: currentIndex)
             
             HStack {
                 Text("Continue")
@@ -84,13 +53,21 @@ struct NameInputView: View {
             }
             .callToActionButton()
             .anyButton(.press) {
-                
+                currentIndex += 1
             }
             .padding()
+            .addButtonAnimation(size: size, index: 0, currentIndex: currentIndex)
         }
     }
 }
 
 #Preview {
-    NameInputView()
+    @Previewable @State var currentIndex: Int = 0
+    @Previewable @State var fullName: String = ""
+    
+    GeometryReader { geometry in
+        let size = geometry.size
+        
+        NameInputView(size: size, currentIndex: $currentIndex, fullName: $fullName)
+    }
 }

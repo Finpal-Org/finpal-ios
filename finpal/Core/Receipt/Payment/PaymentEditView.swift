@@ -46,15 +46,11 @@ struct PaymentEditView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white)
+        .errorPopup(showingPopup: $showingError, "Select a payment method!")
     }
     
     private var setPaymentButton: some View {
         VStack(spacing: 16) {
-            if showingError {
-                ErrorBoxView("Select a payment method!")
-                    .transition(.slide)
-            }
-            
             HStack {
                 Text("Set Payment Method")
                 

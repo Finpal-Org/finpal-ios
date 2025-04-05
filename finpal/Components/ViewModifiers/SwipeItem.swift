@@ -109,7 +109,7 @@ private struct PreviewView: View {
         VStack {
             SwipeItem(
                 content: {
-                    LineItemRowView(lineItem: $lineItem, onUpdate: { })
+                    ItemView(item: $lineItem)
                 },
                 left: {
                     ZStack {

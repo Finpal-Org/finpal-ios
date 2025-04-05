@@ -38,11 +38,6 @@ struct ForgotPasswordView: View {
                         keyboardType: .emailAddress,
                         symbol: "envelope"
                     )
-                    
-                    if showError {
-                        ErrorBoxView("Invalid email address!")
-                            .transition(.move(edge: .leading))
-                    }
                 }
                 .padding(.horizontal)
                 

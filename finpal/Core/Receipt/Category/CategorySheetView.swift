@@ -54,6 +54,7 @@ struct CategorySheetView: View {
             // Button
             selectButton
         }
+        .errorPopup(showingPopup: $showingError, "Select a category before proceeding.")
         .onAppear {
             selectedCategory = category
         }
@@ -61,10 +62,6 @@ struct CategorySheetView: View {
     
     private var selectButton: some View {
         VStack(spacing: 16) {
-            if showingError {
-                ErrorBoxView("Select a category before proceeding!")
-            }
-            
             HStack {
                 Text("Select")
                 

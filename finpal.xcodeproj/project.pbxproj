@@ -7,8 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		83633AAE2D8F73DA009357E1 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 83633AAD2D8F73DA009357E1 /* FirebaseStorage */; };
-		838C62362D7D056400815682 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 838C62352D7D056400815682 /* FirebaseFirestore */; };
+		831CC6812D95F6EB001DE185 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 831CC6802D95F6EB001DE185 /* ConfettiSwiftUI */; };
+		836296742D944EE8008F0858 /* CarouselStack in Frameworks */ = {isa = PBXBuildFile; productRef = 836296732D944EE8008F0858 /* CarouselStack */; };
+		836296762D944EE8008F0858 /* ShuffleIt in Frameworks */ = {isa = PBXBuildFile; productRef = 836296752D944EE8008F0858 /* ShuffleIt */; };
+		83BBF3352DA17CC4000DCB15 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3342DA17CC4000DCB15 /* PopupView */; };
+		83BBF3532DA1CF3E000DCB15 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3522DA1CF3E000DCB15 /* FirebaseAuth */; };
+		83BBF3552DA1CF3E000DCB15 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3542DA1CF3E000DCB15 /* FirebaseCore */; };
+		83BBF3572DA1CF3E000DCB15 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3562DA1CF3E000DCB15 /* FirebaseFirestore */; };
+		83BBF3592DA1CF3E000DCB15 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3582DA1CF3E000DCB15 /* FirebaseStorage */; };
 		83C567062D5A30C000D9D58B /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 83C567052D5A30C000D9D58B /* SDWebImageSwiftUI */; };
 		83D4A4D12D822B6400675EC2 /* VeryfiLens in Frameworks */ = {isa = PBXBuildFile; productRef = 83D4A4D02D822B6400675EC2 /* VeryfiLens */; };
 /* End PBXBuildFile section */
@@ -43,10 +49,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				83BBF3352DA17CC4000DCB15 /* PopupView in Frameworks */,
 				83D4A4D12D822B6400675EC2 /* VeryfiLens in Frameworks */,
-				83633AAE2D8F73DA009357E1 /* FirebaseStorage in Frameworks */,
 				83C567062D5A30C000D9D58B /* SDWebImageSwiftUI in Frameworks */,
-				838C62362D7D056400815682 /* FirebaseFirestore in Frameworks */,
+				83BBF3592DA1CF3E000DCB15 /* FirebaseStorage in Frameworks */,
+				836296762D944EE8008F0858 /* ShuffleIt in Frameworks */,
+				836296742D944EE8008F0858 /* CarouselStack in Frameworks */,
+				83BBF3572DA1CF3E000DCB15 /* FirebaseFirestore in Frameworks */,
+				83BBF3532DA1CF3E000DCB15 /* FirebaseAuth in Frameworks */,
+				83BBF3552DA1CF3E000DCB15 /* FirebaseCore in Frameworks */,
+				831CC6812D95F6EB001DE185 /* ConfettiSwiftUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,9 +110,15 @@
 			name = finpal;
 			packageProductDependencies = (
 				83C567052D5A30C000D9D58B /* SDWebImageSwiftUI */,
-				838C62352D7D056400815682 /* FirebaseFirestore */,
 				83D4A4D02D822B6400675EC2 /* VeryfiLens */,
-				83633AAD2D8F73DA009357E1 /* FirebaseStorage */,
+				836296732D944EE8008F0858 /* CarouselStack */,
+				836296752D944EE8008F0858 /* ShuffleIt */,
+				831CC6802D95F6EB001DE185 /* ConfettiSwiftUI */,
+				83BBF3342DA17CC4000DCB15 /* PopupView */,
+				83BBF3522DA1CF3E000DCB15 /* FirebaseAuth */,
+				83BBF3542DA1CF3E000DCB15 /* FirebaseCore */,
+				83BBF3562DA1CF3E000DCB15 /* FirebaseFirestore */,
+				83BBF3582DA1CF3E000DCB15 /* FirebaseStorage */,
 			);
 			productName = finpal;
 			productReference = 8313641D2D54129F00D6FA07 /* finpal.app */;
@@ -132,8 +150,11 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				83C567042D5A30C000D9D58B /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				838C62342D7D056400815682 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				83D4A4CF2D822B6400675EC2 /* XCRemoteSwiftPackageReference "veryfi-lens-spm" */,
+				836296722D944EE8008F0858 /* XCRemoteSwiftPackageReference "ShuffleIt" */,
+				831CC67F2D95F6EB001DE185 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
+				83BBF3332DA17CC4000DCB15 /* XCRemoteSwiftPackageReference "PopupView" */,
+				83BBF3512DA1CF3E000DCB15 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8313641E2D54129F00D6FA07 /* Products */;
@@ -395,12 +416,36 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		838C62342D7D056400815682 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		831CC67F2D95F6EB001DE185 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		836296722D944EE8008F0858 /* XCRemoteSwiftPackageReference "ShuffleIt" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dscyrescotti/ShuffleIt.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.1.3;
+			};
+		};
+		83BBF3332DA17CC4000DCB15 /* XCRemoteSwiftPackageReference "PopupView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/PopupView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.3;
+			};
+		};
+		83BBF3512DA1CF3E000DCB15 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 11.9.0;
+				minimumVersion = 11.11.0;
 			};
 		};
 		83C567042D5A30C000D9D58B /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
@@ -422,15 +467,45 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		83633AAD2D8F73DA009357E1 /* FirebaseStorage */ = {
+		831CC6802D95F6EB001DE185 /* ConfettiSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 838C62342D7D056400815682 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
+			package = 831CC67F2D95F6EB001DE185 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
+			productName = ConfettiSwiftUI;
 		};
-		838C62352D7D056400815682 /* FirebaseFirestore */ = {
+		836296732D944EE8008F0858 /* CarouselStack */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 838C62342D7D056400815682 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 836296722D944EE8008F0858 /* XCRemoteSwiftPackageReference "ShuffleIt" */;
+			productName = CarouselStack;
+		};
+		836296752D944EE8008F0858 /* ShuffleIt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 836296722D944EE8008F0858 /* XCRemoteSwiftPackageReference "ShuffleIt" */;
+			productName = ShuffleIt;
+		};
+		83BBF3342DA17CC4000DCB15 /* PopupView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83BBF3332DA17CC4000DCB15 /* XCRemoteSwiftPackageReference "PopupView" */;
+			productName = PopupView;
+		};
+		83BBF3522DA1CF3E000DCB15 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83BBF3512DA1CF3E000DCB15 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		83BBF3542DA1CF3E000DCB15 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83BBF3512DA1CF3E000DCB15 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		83BBF3562DA1CF3E000DCB15 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83BBF3512DA1CF3E000DCB15 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		83BBF3582DA1CF3E000DCB15 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83BBF3512DA1CF3E000DCB15 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
 		};
 		83C567052D5A30C000D9D58B /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;

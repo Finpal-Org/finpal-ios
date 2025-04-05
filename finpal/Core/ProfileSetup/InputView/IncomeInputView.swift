@@ -8,40 +8,19 @@
 import SwiftUI
 
 struct IncomeInputView: View {
-    @State private var monthlyIncome: Int = 1000
+    var size: CGSize
+    
+    @Binding var currentIndex: Int
+    @Binding var monthlyIncome: Int
     
     var body: some View {
         VStack {
-            toolbarView
-            
             Spacer()
             
             titleView
             
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.gray5)
-    }
-    
-    private var toolbarView: some View {
-        HStack {
-            Image(systemName: "chevron.left")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(Color.gray80)
-            
-            ProgressView(value: 0.8)
-                .progressViewStyle(FinpalProgressViewStyle())
-            
-            Text("Skip")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.brand60)
-                .anyButton {
-                    
-                }
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
     }
     
     private var titleView: some View {
@@ -51,8 +30,10 @@ struct IncomeInputView: View {
                 .font(.system(size: 30, weight: .bold))
                 .foregroundStyle(Color.gray80)
                 .padding(.horizontal, 24)
+                .addTitleAnimation(size: size, index: 1, currentIndex: currentIndex)
             
             stepperView
+                .addSubtitleAnimation(size: size, index: 1, currentIndex: currentIndex)
             
             HStack {
                 Text("Continue")
@@ -61,9 +42,10 @@ struct IncomeInputView: View {
             }
             .callToActionButton()
             .anyButton(.press) {
-                
+                onContinueButtonPressed()
             }
             .padding()
+            .addButtonAnimation(size: size, index: 1, currentIndex: currentIndex)
         }
     }
     
@@ -133,8 +115,18 @@ struct IncomeInputView: View {
         }
     }
     
+    private func onContinueButtonPressed() {
+        currentIndex += 1
+    }
 }
 
 #Preview {
-    IncomeInputView()
+    @Previewable @State var currentIndex: Int = 0
+    @Previewable @State var monthlyIncome: Int = 10_000
+    
+    GeometryReader { geometry in
+        let size = geometry.size
+        
+        IncomeInputView(size: size, currentIndex: $currentIndex, monthlyIncome: $monthlyIncome)
+    }
 }

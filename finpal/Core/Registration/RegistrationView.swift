@@ -8,130 +8,207 @@
 import SwiftUI
 
 struct RegistrationView: View {
-    @Environment(AppState.self) private var root
+    @State private var showProfileSetupScreens: Bool = false
     
-    @State private var email = ""
+    @State private var showErrorPopup: Bool = false
+    @State private var showEmailError: Bool = false
+    @State private var showPasswordError: Bool = false
+    @State private var showConfirmPasswordError: Bool = false
+    @State private var errorMessage: String = ""
     
-    @State private var password = ""
-    @State private var showPassword = false
+    @StateObject private var viewModel = RegistrationViewModel()
     
-    @State private var confirmPassword = ""
-    @State private var showConfirmPassword = false
-    
-    @State private var strength: PasswordStrength = .none
+    @Environment(AuthenticationRouter.self) private var router
     
     var body: some View {
-        ZStack {
-            Color.gray5.ignoresSafeArea()
+        VStack(spacing: 48) {
+            Spacer()
             
-            ScrollView {
-                VStack(spacing: 48) {
-                    Spacer()
-                    
-                    // Logo and Title
-                    VStack {
-                        Image(.logoPlain)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 64, height: 64)
-                        
-                        Text("Sign Up to finpal")
-                            .font(.title)
-                            .bold()
-                    }
-                    
-                    // Input Fields
-                    VStack(spacing: 28) {
-                        // Email Address Field
-                        VStack(alignment: .leading) {
-                            Text("Email Address")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.gray80)
-                            
-                            FinpalTextField(
-                                text: $email,
-                                placeholder: "Enter your email address...",
-                                keyboardType: .emailAddress,
-                                symbol: "envelope"
-                            )
-                            .frame(height: 48)
-                        }
-                        
-                        // Password Field and Strength Indicator
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Password")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.gray80)
-                            
-                            FinpalSecureField(password: $password, isNotValid: .constant(false))
-                                .onChange(of: password) { oldValue, newValue in
-                                    strength = evaluatePasswordStrength()
-                                }
-                                .frame(height: 48)
-                            
-                            PasswordStrengthView(password: $password, strength: $strength)
-                        }
-                        
-                        // Confirm Password Field
-                        VStack(alignment: .leading) {
-                            Text("Confirm Password")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.gray80)
-                            
-                            FinpalSecureField(password: $confirmPassword, isNotValid: .constant(false))
-                                .frame(height: 48)
-                        }
-                    }
-                    
-                    // Buttons
-                    VStack(spacing: 32) {
-                        Text("Create Account")
-                            .callToActionButton()
-                            .anyButton(.press) {
-                                root.updateViewState(showTabBar: true)
-                            }
-                        
-                        NavigationLink {
-                            LoginView()
-                                .navigationBarBackButtonHidden()
-                        } label: {
-                            Text("I Already Have Account")
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.accent)
-                                .underline()
-                        }
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.horizontal)
+            titleView
+            
+            VStack(spacing: 28) {
+                emailView
+                passwordView
+                confirmPasswordView
             }
+            
+            buttonsView
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.gray5)
+        .errorPopup(showingPopup: $showErrorPopup, errorMessage)
+    }
+    
+    private var titleView: some View {
+        VStack {
+            Image(.logoPlain)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 94, height: 94)
+            
+            Text("Sign Up to finpal")
+                .font(.system(size: 30, weight: .bold))
+                .foregroundStyle(Color.gray80)
         }
     }
     
-    private func evaluatePasswordStrength() -> PasswordStrength {
-        let passwordLength = password.count
-        
-        switch passwordLength {
-        case 0:
-            return .none
-        case 1..<6:
-            return .weak
-        case 6..<10:
-            return .moderate
-        case 10...:
-            return .strong
-        default:
-            return .none
+    private var emailView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Email Address")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.gray80)
+            
+            InputTextFieldView(
+                "Enter your email address...",
+                iconName: "envelope",
+                showError: $showEmailError,
+                text: $viewModel.email
+            )
         }
+    }
+    
+    private var passwordView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Password")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.gray80)
+            
+            InputPasswordView(
+                "Enter your password...",
+                iconName: "lock",
+                showError: $showPasswordError,
+                text: $viewModel.password
+            )
+            
+            PasswordStrengthView(viewModel: viewModel)
+        }
+    }
+    
+    private var confirmPasswordView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Confirm Password")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.gray80)
+            
+            InputPasswordView(
+                "Enter your password...",
+                iconName: "lock",
+                showError: $showConfirmPasswordError,
+                text: $viewModel.confirmPassword
+            )
+        }
+    }
+    
+    private var buttonsView: some View {
+        VStack(spacing: 32) {
+            Text("Create Account")
+                .callToActionButton()
+                .anyButton(.press) {
+                    withAnimation(.spring) {
+                        onCreateAccountPressed()
+                    }
+                }
+            
+            Text("I Already Have Account")
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.accent)
+                .underline()
+                .anyButton {
+                    router.navigateToLogin()
+                }
+        }
+    }
+    
+    private func validateFields() {
+        let email = viewModel.email
+        let password = viewModel.password
+        let confirmPassword = viewModel.confirmPassword
+        let passwordStrength = viewModel.passwordStrength
+        
+        if email.isEmpty {
+            errorMessage = "Please enter your email."
+            showErrorPopup = true
+            
+            showEmailError = true
+            showPasswordError = false
+            showConfirmPasswordError = false
+            return
+        }
+        
+        if !isValidEmail(email) {
+            errorMessage = "Please enter a valid email format."
+            showErrorPopup = true
+            
+            showEmailError = true
+            showPasswordError = false
+            showConfirmPasswordError = false
+            return
+        }
+        
+        if password.isEmpty {
+            errorMessage = "Please enter a password."
+            showErrorPopup = true
+            
+            showEmailError = false
+            showPasswordError = true
+            showConfirmPasswordError = false
+            return
+        }
+        
+        if confirmPassword.isEmpty {
+            errorMessage = "Please confirm your password."
+            showErrorPopup = true
+            
+            showEmailError = false
+            showPasswordError = false
+            showConfirmPasswordError = true
+            return
+        }
+        
+        if confirmPassword != password {
+            errorMessage = "Passwords do not match."
+            showErrorPopup = true
+            
+            showEmailError = false
+            showPasswordError = true
+            showConfirmPasswordError = true
+            return
+        }
+        
+        if passwordStrength != .veryStrong {
+            errorMessage = "Password is too weak."
+            showErrorPopup = true
+            
+            showEmailError = false
+            showPasswordError = true
+            showConfirmPasswordError = false
+            return
+        }
+        
+        showErrorPopup = false
+        showEmailError = false
+        showPasswordError = false
+        showConfirmPasswordError = false
+        
+        router.navigateToSetup(email: viewModel.email, password: viewModel.password)
+    }
+    
+    func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
+        return emailPredicate.evaluate(with: email)
+    }
+    
+    private func onCreateAccountPressed() {
+        validateFields()
     }
 }
 
 #Preview {
     RegistrationView()
-        .environment(AppState())
+        .withRouter()
 }

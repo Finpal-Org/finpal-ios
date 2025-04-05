@@ -8,29 +8,27 @@
 import SwiftUI
 
 struct LoginView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var showPassword: Bool = false
+    @Environment(AuthenticationRouter.self) private var router
+    
+    @State private var viewModel = SignInViewModel()
+    
     @State private var rememberMe: Bool = true
-    @State private var showError: Bool = false
-    @State private var showForgotPassword: Bool = false
+    
+    @State private var isForgotPasswordPresented: Bool = false
     
     var body: some View {
-        ZStack {
-            Color.gray5.ignoresSafeArea()
-            
+        VStack {
             VStack(spacing: 40) {
                 // Logo and Title
                 VStack(spacing: 24) {
                     Image(.logoPlain)
                         .resizable()
-                        .scaledToFill()
-                        .frame(width: 64, height: 64)
+                        .scaledToFit()
+                        .frame(width: 94, height: 94)
                     
                     Text("Sign In to finpal")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.black)
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundStyle(Color.gray80)
                 }
                 
                 // Fields
@@ -38,13 +36,6 @@ struct LoginView: View {
                     emailAddressField
                     passwordField
                     rememberMeButton
-                    
-                    if showError {
-                        ErrorBoxView("ERROR: Password does not match!")
-                            .transition(.move(edge: .bottom))
-                            
-                    }
-                    
                 }
                 
                 // Buttons
@@ -57,23 +48,25 @@ struct LoginView: View {
             }
             .padding()
         }
-        .fullScreenCover(isPresented: $showForgotPassword) {
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.gray5)
+        .fullScreenCover(isPresented: $isForgotPasswordPresented) {
             ForgotPasswordView()
         }
+        .errorPopup(showingPopup: $viewModel.errorAlert.isPresented, viewModel.errorAlert.message)
     }
     
     private var emailAddressField: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Email Address")
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color.gray80)
             
-            FinpalTextField(
-                text: $email,
-                placeholder: "Enter your email address...",
-                keyboardType: .emailAddress,
-                symbol: "envelope"
+            InputTextFieldView(
+                "Enter your email address...",
+                iconName: "envelope",
+                showError: $viewModel.errorAlert.isPresented,
+                text: $viewModel.email
             )
         }
     }
@@ -81,11 +74,15 @@ struct LoginView: View {
     private var passwordField: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Password")
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color.gray80)
             
-            FinpalSecureField(password: $password, isNotValid: $showError)
+            InputPasswordView(
+                "Enter your password...",
+                iconName: "lock",
+                showError: $viewModel.errorAlert.isPresented,
+                text: $viewModel.password
+            )
         }
     }
     
@@ -99,8 +96,8 @@ struct LoginView: View {
                 }
             
             Text("Remember for 30 days")
-                .font(.callout)
-                .fontWeight(.medium)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color.gray80)
             
             Spacer()
         }
@@ -110,20 +107,16 @@ struct LoginView: View {
         Text("Sign In")
             .callToActionButton()
             .anyButton(.press) {
-                withAnimation(.smooth) {
-                    showError.toggle()
-                }
+                onSignInButtonPressed()
             }
     }
     
     private var createNewAccountButton: some View {
-        NavigationLink {
-            RegistrationView()
-                .navigationBarBackButtonHidden()
-        } label: {
-            Text("Create New Account")
-                .secondaryButton()
-        }
+        Text("Create New Account")
+            .secondaryButton()
+            .anyButton(.press) {
+                onCreateAccountButtonPressed()
+            }
     }
     
     private var forgotPasswordButton: some View {
@@ -137,12 +130,20 @@ struct LoginView: View {
         }
     }
     
-    private func onForgotPasswordPressed() {
-        showForgotPassword = true
+    private func onSignInButtonPressed() {
+        viewModel.signIn()
     }
     
+    private func onCreateAccountButtonPressed() {
+        router.navigateToSignUp()
+    }
+    
+    private func onForgotPasswordPressed() {
+        isForgotPasswordPresented = true
+    }
 }
 
 #Preview {
     LoginView()
+        .withRouter()
 }

@@ -45,6 +45,7 @@ struct VendorLogoSheetView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray5)
+        .errorPopup(showingPopup: $showingError, "Upload a logo file before saving.")
     }
     
     private var toolbarView: some View {
@@ -119,10 +120,6 @@ struct VendorLogoSheetView: View {
     
     private var saveLogoButton: some View {
         VStack(spacing: 16) {
-            if showingError {
-                ErrorBoxView("Upload a logo file before saving!")
-            }
-            
             HStack {
                 Text("Save Logo")
                 

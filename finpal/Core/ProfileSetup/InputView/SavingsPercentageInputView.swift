@@ -8,40 +8,19 @@
 import SwiftUI
 
 struct SavingsPercentageInputView: View {
-    @State private var sliderValue: Double = 25
+    var size: CGSize
+    
+    @Binding var currentIndex: Int
+    @Binding var sliderValue: Double
     
     var body: some View {
         VStack {
-            toolbarView
-            
             Spacer()
             
             titleView
             
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.gray5)
-    }
-    
-    private var toolbarView: some View {
-        HStack {
-            Image(systemName: "chevron.left")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(Color.gray80)
-            
-            ProgressView(value: 0.8)
-                .progressViewStyle(FinpalProgressViewStyle())
-            
-            Text("Skip")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.brand60)
-                .anyButton {
-                    
-                }
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
     }
     
     private var titleView: some View {
@@ -52,6 +31,7 @@ struct SavingsPercentageInputView: View {
                 .foregroundStyle(Color.gray80)
                 .padding(.horizontal, 24)
                 .padding(.bottom)
+                .addTitleAnimation(size: size, index: 2, currentIndex: currentIndex)
             
             VStack(spacing: 24) {
                 circularSliderView
@@ -80,6 +60,7 @@ struct SavingsPercentageInputView: View {
                 )
                 .font(.system(size: 18, weight: .regular))
             }
+            .addSubtitleAnimation(size: size, index: 2, currentIndex: currentIndex)
             
             HStack {
                 Text("Continue")
@@ -88,9 +69,10 @@ struct SavingsPercentageInputView: View {
             }
             .callToActionButton()
             .anyButton(.press) {
-                
+                onContinueButtonPressed()
             }
             .padding()
+            .addButtonAnimation(size: size, index: 2, currentIndex: currentIndex)
         }
     }
     
@@ -106,8 +88,18 @@ struct SavingsPercentageInputView: View {
             textColor: Color.gray80
         )
     }
+    
+    private func onContinueButtonPressed() {
+        currentIndex += 1
+    }
 }
 
 #Preview {
-    SavingsPercentageInputView()
+    @Previewable @State var currentIndex: Int = 2
+    
+    GeometryReader { geometry in
+        let size = geometry.size
+        
+        SavingsPercentageInputView(size: size, currentIndex: $currentIndex, sliderValue: .constant(25.0))
+    }
 }

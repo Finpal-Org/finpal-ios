@@ -39,6 +39,13 @@ extension View {
             .listRowBackground(Color.clear)
     }
     
+    func placeholder<Content: View>(when shouldShow: Bool, @ViewBuilder placeholder: () -> Content) -> some View {
+        ZStack(alignment: .leading) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
+    }
+    
     @ViewBuilder
     func ifSatisfiedCondition(_ condition: Bool, transform: (Self) -> some View) -> some View {
         if condition {
@@ -46,10 +53,6 @@ extension View {
         } else {
             self
         }
-    }
-    
-    func numericTextInput(_ mode: NumericTextInputMode = .number, text: Binding<String>) -> some View {
-        modifier(NumericTextInputViewModifier(text: text, mode: mode))
     }
     
     func mediumShadow() -> some View {
