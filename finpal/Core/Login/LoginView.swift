@@ -104,11 +104,11 @@ struct LoginView: View {
     }
     
     private var signInButton: some View {
-        Text("Sign In")
-            .callToActionButton()
-            .anyButton(.press) {
-                onSignInButtonPressed()
-            }
+        AsyncCallToActionButton(
+            isLoading: viewModel.isLoading,
+            title: "Sign In",
+            action: onSignInButtonPressed
+        )
     }
     
     private var createNewAccountButton: some View {

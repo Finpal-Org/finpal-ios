@@ -32,12 +32,12 @@ struct ForgotPasswordView: View {
                 }
                 
                 VStack(spacing: 12) {
-                    FinpalTextField(
-                        text: $email,
-                        placeholder: "Enter your email address...",
-                        keyboardType: .emailAddress,
-                        symbol: "envelope"
-                    )
+//                    FinpalTextField(
+//                        text: $email,
+//                        placeholder: "Enter your email address...",
+//                        keyboardType: .emailAddress,
+//                        symbol: "envelope"
+//                    )
                 }
                 .padding(.horizontal)
                 

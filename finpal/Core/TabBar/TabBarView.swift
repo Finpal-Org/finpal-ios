@@ -29,7 +29,7 @@ struct TabBarView: View {
                     case .chatbot:
                         Text("Chatbot")
                     case .profile:
-                        ProfileView(currentUser: .mock)
+                        ProfileView()
                     }
                     
                     Spacer()

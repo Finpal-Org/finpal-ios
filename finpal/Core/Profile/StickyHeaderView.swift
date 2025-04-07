@@ -1,0 +1,76 @@
+//
+//  StickyHeaderView.swift
+//  finpal
+//
+//  Created by Abdulkarim Koshak on 4/8/25.
+//
+
+import SwiftUI
+
+struct StickyHeaderView: View {
+    var body: some View {
+        GeometryReader { geometry in
+            let size = geometry.size
+            let minY = geometry.frame(in: .global).minY
+            let isScrolling = minY > 0
+            
+            VStack {
+                Image(.profileHeader)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size.width, height: isScrolling ? 215 + minY : 215)
+                    .clipped()
+                    .offset(y: isScrolling ? -minY : 0)
+                    .blur(radius: isScrolling ? 0 + minY / 80 : 0)
+                    .scaleEffect(isScrolling ? 1 + minY / 2000 : 1)
+                    .overlay(alignment: .bottom) {
+                        ZStack {
+                            ImageLoaderView(urlString: Constants.randomImageURL)
+                                .scaledToFill()
+                            
+                            Circle()
+                                .stroke(Color.white, lineWidth: 6)
+                        }
+                        .frame(width: 96, height: 96)
+                        .clipShape(.circle)
+                        .offset(y: 50)
+                        .offset(y: isScrolling ? -minY : 0)
+                    }
+                
+                Group {
+                    VStack(spacing: 8) {
+                        Text("Member since April 2025")
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundStyle(Color.gray60)
+                        
+                        Text("John Doe")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundStyle(Color.gray80)
+                            .multilineTextAlignment(.center)
+                            .frame(width: geometry.size.width)
+                            .lineLimit(2)
+                            .fixedSize()
+                    }
+                    .offset(y: isScrolling ? -minY : 0)
+                }
+                .padding(.vertical, 60)
+            }
+        }
+        .frame(height: 385)
+    }
+}
+
+private struct PreviewView: View {
+    var body: some View {
+        ScrollView {
+            VStack {
+                StickyHeaderView()
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+#Preview {
+    PreviewView()
+}

@@ -8,6 +8,7 @@
 import SwiftUI
 import Observation
 
+@MainActor
 @Observable class ProfileSetupViewModel {
     let email: String
     let password: String

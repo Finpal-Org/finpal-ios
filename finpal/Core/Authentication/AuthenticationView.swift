@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AuthenticationView: View {
     var body: some View {
-        RegistrationView()
+        LoginView()
             .withRouter()
     }
 }

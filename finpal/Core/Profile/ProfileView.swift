@@ -8,192 +8,156 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(AuthManager.self) private var authManager
+    @Environment(UserManager.self) private var userManager
     @Environment(AppState.self) private var appState
     
-    @State var currentUser: UserModel?
+    @State private var currentUser: UserModel?
+    
+    @State private var showPopup = false
+    @State private var errorMessage = ""
     
     var body: some View {
-        ZStack {
-            Color.gray5.ignoresSafeArea()
-            
-            List {
-                ImageLoaderView(urlString: Constants.randomImageURL)
-                    .frame(height: 215)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .listRowBackground(Color.clear)
-                    .zIndex(-1)
+        ScrollView {
+            VStack {
+                StickyHeaderView()
                 
-                HStack(spacing: 24) {
-                    Circle()
-                        .frame(width: 48, height: 48)
-                        .foregroundStyle(.white)
-                        .overlay {
-                            Image(systemName: "gearshape")
-                        }
-                        .shadow(radius: 5)
+                VStack(spacing: 32) {
+                    generalSettingsView
                     
-                    ImageLoaderView(urlString: currentUser?.profileImageName ?? Constants.randomImageURL)
-                        .clipShape(Circle())
-                        .frame(width: 96, height: 96)
+                    Divider()
+                        .padding(.horizontal)
                     
-                    Circle()
-                        .frame(width: 48, height: 48)
-                        .foregroundStyle(.white)
-                        .overlay {
-                            Image(systemName: "slider.vertical.3")
-                        }
-                        .shadow(radius: 5)
-                }
-                .offset(y: -50)
-                .frame(maxWidth: .infinity)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                
-                VStack {
-                    (
-                        Text("Member since ")
-                        +
-                        Text(currentUser?.creationDate ?? .now, format: .dateTime.month().year())
-                    )
-                    .font(.caption)
-                    .foregroundStyle(.gray60)
+                    notificationsSettingsView
                     
-                    Text(currentUser?.name ?? "")
-                        .font(.title2)
-                        .fontWeight(.bold)
+                    Divider()
+                        .padding(.horizontal)
+                    
+                    securitySettingsView
+                    
+                    Divider()
+                        .padding(.horizontal)
+                    
+                    dangerZoneSectionView
+                    signOutButton
                 }
-                .frame(maxWidth: .infinity)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                
-                Section {
-                    VStack {
-                        SettingsRow(title: "Profile Info", icon: "person")
-                        
-                        SettingsRow(title: "Display & Appearance", icon: "paintpalette")
-                        
-                        SettingsRow(title: "Subscription", icon: "calendar.badge.checkmark")
-                        
-                        SettingsRow(title: "Preferences", icon: "gearshape")
-                        
-                        SettingsRow(title: "Currency", icon: "dollarsign")
-                        
-                        SettingsRow(title: "About Us", icon: "questionmark")
-                        
-                        Divider()
-                            .padding(.top, 32)
-                            .padding(.horizontal)
-                    }
-                    .padding()
-                } header: {
-                    Text("General Settings")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.gray80)
-                        .padding(.leading)
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                
-                Section {
-                    VStack {
-                        SettingsRow(title: "Push Notification", icon: "bell")
-                        
-                        SettingsRow(title: "Sound Notification", icon: "speaker.2")
-                        
-                        SettingsRow(title: "Email Notification", icon: "envelope")
-                        
-                        Divider()
-                            .padding(.top, 32)
-                            .padding(.horizontal)
-                    }
-                    .padding()
-                } header: {
-                    Text("Notifications")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.gray80)
-                        .padding(.leading)
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                
-                Section {
-                    VStack {
-                        SettingsRow(title: "Change Password", icon: "lock")
-                        
-                        Divider()
-                            .padding(.top, 32)
-                            .padding(.horizontal)
-                    }
-                    .padding()
-                } header: {
-                    Text("Security")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.gray80)
-                        .padding(.leading)
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                
-                Section {
-                    SettingsRow(title: "Delete Account", icon: "exclamationmark.triangle", isDeleteAccount: true)
-                        .padding()
-                } header: {
-                    HStack {
-                        Text("Danger Zone")
-                            .font(.callout)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.gray80)
-                            .padding(.leading)
-                        
-                        Spacer()
-                        
-                        Text("Careful")
-                            .font(.footnote)
-                            .fontWeight(.medium)
-                            .foregroundStyle(.gray40)
-                            .padding(.trailing)
-                    }
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                
-                Section {
-                    HStack {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                        
-                        Text("Sign Out")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.destructive60)
-                    .onTapGesture {
-                        onSignOutPressed()
-                    }
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                
                 
             }
-            .ignoresSafeArea()
-            .listStyle(.plain)
+        }
+        .ignoresSafeArea()
+        .background(Color.gray5)
+        .errorPopup(showingPopup: $showPopup, errorMessage)
+    }
+    
+    private var generalSettingsView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("General Settings")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.gray80)
+                .padding(.leading)
+            
+            VStack(spacing: 8) {
+                ProfileSettingsItemView(setting: .profileInfo) {
+                    
+                }
+                
+                ProfileSettingsItemView(setting: .displayAppearance) {
+                    
+                }
+                
+                ProfileSettingsItemView(setting: .exportData) {
+                    
+                }
+                
+                ProfileSettingsItemView(setting: .aboutUs) {
+                    
+                }
+            }
         }
     }
     
-    func onSignOutPressed() {
+    private var notificationsSettingsView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Notifications")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.gray80)
+                .padding(.leading)
+            
+            ProfileSettingsItemView(setting: .pushNotification) {
+                
+            }
+        }
+    }
+    
+    private var securitySettingsView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Security")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.gray80)
+                .padding(.leading)
+            
+            ProfileSettingsItemView(setting: .changePassword) {
+                
+            }
+        }
+    }
+    
+    private var dangerZoneSectionView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Danger Zone")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.gray80)
+                
+                Spacer()
+                
+                Text("Careful")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.gray40)
+            }
+            .padding(.horizontal)
+            
+            ProfileSettingsItemView(setting: .deleteAccount, isImportant: true) {
+                
+            }
+        }
+    }
+    
+    private var signOutButton: some View {
+        VStack {
+            
+            HStack(spacing: 8) {
+                Image(systemName: "rectangle.portrait.and.arrow.right")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Color.destructive60)
+                
+                Text("Sign Out")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.destructive60)
+            }
+            .anyButton {
+                onSignOutPressed()
+            }
+            
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 60)
+        .padding(.bottom, 60)
+    }
+    
+    private func onSignOutPressed() {
         Task {
-            await dismissScreen()
+            do {
+                try authManager.signOut()
+                userManager.signOut()
+                
+                await dismissScreen()
+            } catch {
+                errorMessage = "Sign out failed. Please try again."
+                showPopup = true
+            }
         }
     }
     
@@ -204,6 +168,6 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(currentUser: .mock)
-        .environment(AppState())
+    ProfileView()
+        .previewEnvironment()
 }

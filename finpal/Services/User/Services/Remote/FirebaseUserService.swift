@@ -6,8 +6,15 @@
 //
 
 import FirebaseFirestore
+import SwiftfulFirestore
 
-struct FirebaseUserService: UserService {
+typealias ListenerRegistration = FirebaseFirestore.ListenerRegistration
+
+struct AnyListener: @unchecked Sendable {
+    let listener: ListenerRegistration
+}
+
+struct FirebaseUserService: RemoteUserService {
     
     private var collection: CollectionReference {
         Firestore.firestore().collection("users")
@@ -23,7 +30,15 @@ struct FirebaseUserService: UserService {
         ])
     }
     
-    // TODO: Get current user
+    func markChatbotScreenVisited(userId: String) async throws {
+        try await collection.document(userId).updateData([
+            UserModel.CodingKeys.didVisitChatbotScreen.rawValue: true
+        ])
+    }
+    
+    func streamUser(userId: String, onListenerConfigured: @escaping (ListenerRegistration) -> Void) -> AsyncThrowingStream<UserModel, Error> {
+        collection.streamDocument(id: userId, onListenerConfigured: onListenerConfigured)
+    }
     
     func deleteUser(userId: String) async throws {
         try await collection.document(userId).delete()

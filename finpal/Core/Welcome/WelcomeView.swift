@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct WelcomeView: View {
+    @Environment(AuthenticationRouter.self) private var router
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 64) {
@@ -37,19 +39,21 @@ struct WelcomeView: View {
                     featuresItemView("Achievements & More!")
                 }
                 
-                NavigationLink {
-                    OnboardingView()
-                        .navigationBarBackButtonHidden()
-                } label: {
-                    HStack {
-                        Text("Get Started")
-                        
-                        Image(systemName: "arrow.right")
-                    }
-                    .callToActionButton()
-                }
+                buttonView
             }
             .padding()
+        }
+    }
+    
+    private var buttonView: some View {
+        HStack {
+            Text("Get Started")
+            
+            Image(systemName: "arrow.right")
+        }
+        .callToActionButton()
+        .anyButton(.press) {
+            router.navigateToOnboarding()
         }
     }
     
@@ -68,4 +72,5 @@ struct WelcomeView: View {
 
 #Preview {
     WelcomeView()
+        .previewEnvironment()
 }

@@ -13,6 +13,8 @@ struct NameInputView: View {
     @Binding var currentIndex: Int
     @Binding var fullName: String
     
+    @State private var showPopup = false
+    
     var body: some View {
         VStack {
             Spacer()
@@ -21,6 +23,7 @@ struct NameInputView: View {
             
             Spacer()
         }
+        .errorPopup(showingPopup: $showPopup, "Please enter your full name.")
     }
     
     private var textFieldView: some View {
@@ -53,11 +56,20 @@ struct NameInputView: View {
             }
             .callToActionButton()
             .anyButton(.press) {
-                currentIndex += 1
+                onContinueButtonPressed()
             }
             .padding()
             .addButtonAnimation(size: size, index: 0, currentIndex: currentIndex)
         }
+    }
+    
+    private func onContinueButtonPressed() {
+        if fullName.isEmpty {
+            showPopup = true
+            return
+        }
+        
+        currentIndex += 1
     }
 }
 

@@ -121,7 +121,7 @@ struct IncomeInputView: View {
 }
 
 #Preview {
-    @Previewable @State var currentIndex: Int = 0
+    @Previewable @State var currentIndex: Int = 1
     @Previewable @State var monthlyIncome: Int = 10_000
     
     GeometryReader { geometry in

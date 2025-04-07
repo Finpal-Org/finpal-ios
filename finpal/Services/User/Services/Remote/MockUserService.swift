@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MockUserService: UserService {
+struct MockUserService: RemoteUserService {
     let currentUser: UserModel?
     
     init(user: UserModel? = nil) {
@@ -20,6 +20,18 @@ struct MockUserService: UserService {
     
     func markOnboardingCompleted(userId: String) async throws {
         
+    }
+    
+    func markChatbotScreenVisited(userId: String) async throws {
+        
+    }
+    
+    func streamUser(userId: String, onListenerConfigured: @escaping (any ListenerRegistration) -> Void) -> AsyncThrowingStream<UserModel, any Error> {
+        AsyncThrowingStream { continuation in
+            if let currentUser {
+                continuation.yield(currentUser)
+            }
+        }
     }
     
     func deleteUser(userId: String) async throws {

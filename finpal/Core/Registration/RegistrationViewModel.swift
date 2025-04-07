@@ -5,97 +5,69 @@
 //  Created by Abdulkarim Koshak on 3/28/25.
 //
 
-import Combine
-import Foundation
+import SwiftUI
 
-final class RegistrationViewModel: ObservableObject {
-    @Published var email = ""
-    @Published var password = ""
-    @Published var confirmPassword = ""
-    @Published var passwordStrength: PasswordStrength = .none
+@Observable
+class RegistrationViewModel {
+    var email = ""
+    var password = ""
+    var confirmPassword = ""
+    var strength: PasswordStrength = .none
     
-    @Published var hasTenChar = false
-    @Published var hasSpacialChar = false
-    @Published var hasOneDigit = false
-    @Published var hasOneUpperCaseChar = false
-    @Published var confirmationMatch = false
-    @Published var areAllFieldsValid = false
+    var showEmailError = false
+    var showPasswordError = false
+    var showConfirmPasswordError = false
     
-    init() {
-        validateSignUpFields()
-        calculatePasswordStrength()
+    var showPopup = false
+    var errorMessage = ""
+    
+    func createUser() {
+        
     }
     
-    private func validateSignUpFields() {
-        $password
-            .map { password in
-                password.count >= 10
-            }
-            .assign(to: &$hasTenChar)
+    func validateForm() throws {
+        if email.isEmpty {
+            showError(showEmailError: true, showPasswordError: false, showConfirmPasswordError: false)
+            throw AppAuthError.emailRequired
+        }
         
-        // Check password has minimum 1 special character
-        $password
-            .map { password in
-                password.rangeOfCharacter(from: CharacterSet(charactersIn: "!@#$%^&*()_+-=[]{}|:\"';<>,.?/~`")) != nil
-            }
-            .assign(to: &$hasSpacialChar)
+        if !isValidEmail(email) {
+            showError(showEmailError: true, showPasswordError: false, showConfirmPasswordError: false)
+            throw AppAuthError.invalidEmail
+        }
         
-        // Check password has minimum 1 digit
-        $password
-            .map { password in
-                password.contains { $0.isNumber }
-            }
-            .assign(to: &$hasOneDigit)
+        if password.isEmpty {
+            showError(showEmailError: false, showPasswordError: true, showConfirmPasswordError: false)
+            throw AppAuthError.passwordRequired
+        }
         
-        // Check password has minimum 1 uppercase letter
-        $password
-            .map { password in
-                password.contains { $0.isUppercase }
-            }
-            .assign(to: &$hasOneUpperCaseChar)
+        if confirmPassword.isEmpty {
+            showError(showEmailError: false, showPasswordError: false, showConfirmPasswordError: true)
+            throw AppAuthError.confirmPasswordRequired
+        }
         
-        // Check confirmation match password
-        Publishers.CombineLatest($password, $confirmPassword)
-            .map { [weak self] _, _ in
-                guard let self else { return false}
-                return self.password == self.confirmPassword
-            }
-            .assign(to: &$confirmationMatch)
+        if confirmPassword != password {
+            showError(showEmailError: false, showPasswordError: true, showConfirmPasswordError: true)
+            throw AppAuthError.passwordsDoNotMatch
+        }
         
-        // Check all fields match
-        Publishers.CombineLatest($password, $confirmPassword)
-            .map { [weak self] _, _ in
-                guard let self else { return false}
-                return self.hasTenChar && self.hasSpacialChar && self.hasOneDigit && self.hasOneUpperCaseChar && self.confirmationMatch
-            }
-            .assign(to: &$areAllFieldsValid)
+        if strength != .strong && strength != .veryStrong {
+            showError(showEmailError: false, showPasswordError: true, showConfirmPasswordError: false)
+            throw AppAuthError.invalidPasswordLength
+        }
+        
+        showError(showEmailError: false, showPasswordError: false, showConfirmPasswordError: false)
     }
     
-    func calculatePasswordStrength() {
-        Publishers.CombineLatest4($hasTenChar, $hasSpacialChar, $hasOneDigit, $hasOneUpperCaseChar)
-            .map { hasTenChar, hasSpecialChar, hasDigit, hasUpperCase in
-                if self.password.isEmpty {
-                    return PasswordStrength.none
-                }
-                
-                let criteria = [hasTenChar, hasSpecialChar, hasDigit, hasUpperCase]
-                let metCriteriaCount = criteria.filter { $0 }.count
-                
-                switch metCriteriaCount {
-                case 0:
-                    return .none
-                case 1:
-                    return .weak
-                case 2:
-                    return .moderate
-                case 3:
-                    return .strong
-                case 4:
-                    return .veryStrong
-                default:
-                    return .none
-                }
-            }
-            .assign(to: &$passwordStrength)
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
+        return emailPredicate.evaluate(with: email)
+    }
+    
+    private func showError(showEmailError: Bool, showPasswordError: Bool, showConfirmPasswordError: Bool) {
+        self.showEmailError = showEmailError
+        self.showPasswordError = showPasswordError
+        self.showConfirmPasswordError = showConfirmPasswordError
     }
 }

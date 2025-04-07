@@ -12,6 +12,7 @@ import SwiftUI
     var email = ""
     var password = ""
     var errorAlert: (isPresented: Bool, message: String) = (false, "")
+    var isLoading = false
     
     private func validateFields() throws {
         if email.isEmpty {
@@ -34,17 +35,6 @@ import SwiftUI
     }
     
     func signIn() {
-        Task {
-            do {
-                try validateFields()
-                try await AuthService.shared.signIn(withEmail: email, password: password)
-            } catch let error as AppAuthError {
-                errorAlert.isPresented = true
-                errorAlert.message = error.localizedDescription
-            } catch {
-                errorAlert.isPresented = true
-                errorAlert.message = error.localizedDescription
-            }
-        }
+        
     }
 }

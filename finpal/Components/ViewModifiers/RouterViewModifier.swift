@@ -13,6 +13,8 @@ struct RouterViewModifier: ViewModifier {
     private func routeView(for route: Route) -> some View {
         Group {
             switch route {
+            case .onboarding:
+                OnboardingView()
             case .login:
                 LoginView()
             case .signUp:

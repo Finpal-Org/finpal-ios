@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct OnboardingView: View {
+    @Environment(AppState.self) private var root
+    @Environment(UserManager.self) private var userManager
+    @Environment(AuthenticationRouter.self) private var router
+    
     @State private var currentIndex = 0
     
     var body: some View {
@@ -106,22 +110,32 @@ struct OnboardingView: View {
     }
     
     private var signInButton: some View {
-        NavigationLink {
-            LoginView()
-                .navigationBarBackButtonHidden()
-        } label: {
-            Text("Sign In")
-                .secondaryButton(backgroundColor: Color.clear)
-        }
+        Text("Sign In")
+            .secondaryButton()
+            .anyButton {
+                onFinishOnboarding()
+            }
     }
     
     private func onGetStartedPressed() {
         if currentIndex < 4 {
             currentIndex += 1
+        } else {
+            onFinishOnboarding()
+        }
+    }
+    
+    private func onFinishOnboarding() {
+        Task {
+            try await userManager.markOnboardingCompleteForCurrentUser()
+            
+            router.navigateToLogin()
+            root.updateViewState(showTabBar: true)
         }
     }
 }
 
 #Preview {
     OnboardingView()
+        .previewEnvironment()
 }

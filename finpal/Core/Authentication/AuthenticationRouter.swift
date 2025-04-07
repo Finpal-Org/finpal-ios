@@ -11,6 +11,10 @@ import SwiftUI
 class AuthenticationRouter {
     var path = NavigationPath()
     
+    func navigateToOnboarding() {
+        path.append(Route.onboarding)
+    }
+    
     func navigateToLogin() {
         path.append(Route.login)
     }
@@ -29,6 +33,7 @@ class AuthenticationRouter {
 }
 
 enum Route: Hashable {
+    case onboarding
     case login
     case signUp
     case setup(email: String, password: String)

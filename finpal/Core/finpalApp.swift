@@ -22,24 +22,25 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct finpalApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-    @StateObject private var viewRouter = TabBarViewRouter()
-    
     var body: some Scene {
         WindowGroup {
-            TabBarView(viewRouter: viewRouter)
+            AppView()
                 .environment(delegate.dependencies.receiptManager)
                 .environment(delegate.dependencies.userManager)
+                .environment(delegate.dependencies.authManager)
         }
     }
 }
 
 @MainActor
 struct Dependencies {
+    let authManager: AuthManager
     let userManager: UserManager
     let receiptManager: ReceiptManager
     
     init() {
-        userManager = UserManager(service: FirebaseUserService())
+        authManager = AuthManager(service: FirebaseAuthService())
+        userManager = UserManager(services: ProductionUserServices())
         receiptManager = ReceiptManager(service: FirebaseReceiptService())
     }
 }
@@ -48,8 +49,10 @@ extension View {
     
     func previewEnvironment(isSignedIn: Bool = true) -> some View {
         self
+            .withRouter()
             .environment(ReceiptManager(service: MockReceiptService()))
-            .environment(UserManager(service: MockUserService(user: isSignedIn ? .mock : nil)))
+            .environment(UserManager(services: MockUserServices(user: .mock)))
+            .environment(AuthManager(service: MockAuthService(user: .mock)))
             .environment(AppState())
     }
 }

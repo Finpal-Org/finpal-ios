@@ -27,7 +27,7 @@ struct ErrorPopupView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(12)
-        .background(Color.destructive5, in: .rect)
+        .background(Color.destructive5, in: .rect(cornerRadius: 16))
         .overlay {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.destructive60, lineWidth: 1)
@@ -56,8 +56,13 @@ private struct PreviewView: View {
     @State private var showPopup: Bool = false
     
     var body: some View {
-        Button("Show Error Popup") {
-            showPopup.toggle()
+        ZStack {
+            Color.gray5.ignoresSafeArea()
+            
+            Button("Show Error Popup") {
+                showPopup.toggle()
+            }
+            
         }
         .errorPopup(showingPopup: $showPopup, "Test Error Message")
     }

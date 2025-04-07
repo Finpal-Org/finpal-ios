@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileSetupView: View {
-    @Environment(AuthenticationRouter.self) private var router
+    @Environment(\.dismiss) private var dismiss
     
     @State private var currentIndex: Int = 0
     @State private var viewModel: ProfileSetupViewModel
@@ -30,7 +30,7 @@ struct ProfileSetupView: View {
             profileSetupScreens()
             
             if currentIndex >= 5 {
-                ProfileSetupLoadingView()
+                ProfileSetupLoadingView(viewModel: viewModel)
                     .transition(.move(edge: .trailing))
             } else {
                 navigationBar()
@@ -96,7 +96,7 @@ struct ProfileSetupView: View {
                     if currentIndex > 0 {
                         currentIndex -= 1
                     } else {
-                        router.navigateToSignUp()
+                        dismiss()
                     }
                 }
             
@@ -171,7 +171,6 @@ private struct PreviewView: View {
     
     var body: some View {
         ProfileSetupView(email: email, password: password)
-            .withRouter()
     }
 }
 

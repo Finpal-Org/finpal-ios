@@ -9,6 +9,11 @@ import SwiftUI
 import ConfettiSwiftUI
 
 struct ProfileSetupLoadingView: View {
+    @Environment(AuthManager.self) private var authManager
+    @Environment(UserManager.self) private var userManager
+    
+    let viewModel: ProfileSetupViewModel
+    
     @Namespace private var animation
     
     @State private var showCircle: Int = 0
@@ -17,6 +22,10 @@ struct ProfileSetupLoadingView: View {
     
     @State private var showLoading: Bool = false
     @State private var rotateLoading: Double = 0.35
+    
+    @State private var showFailLoading = false
+    @State private var isXMarkPresented = false
+    @State private var isTryAgainPresented = false
     
     @State private var isSpinnerComplete: Bool = false
     @State private var isCheckMarkComplete: Bool = false
@@ -32,17 +41,32 @@ struct ProfileSetupLoadingView: View {
                     .matchedGeometryEffect(id: "Setup", in: animation)
             }
         }
+        .frame(maxHeight: .infinity)
+        .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
+            ZStack {
+                if isTryAgainPresented {
+                    Text("Try Again")
+                        .callToActionButton()
+                        .transition(.move(edge: .bottom))
+                        .anyButton(.press) {
+                            
+                        }
+                }
+            }
+            .padding(24)
+        }
+        .animation(.bouncy, value: isTryAgainPresented)
     }
     
     private var circleAnimation: some View {
         ZStack {
             Circle()
                 .frame(width: 60, height: 60)
-                .foregroundStyle(Color.brand60)
+                .foregroundStyle(showFailLoading ? Color.destructive60 : Color.brand60)
                 .scaleEffect(CGFloat(showCircle))
                 .animation(.interpolatingSpring(stiffness: 170, damping: 15).delay(0.5), value: showCircle)
             
-            Image(systemName: "checkmark")
+            Image(systemName: isXMarkPresented ? "xmark" : "checkmark")
                 .font(.system(size: 30))
                 .foregroundStyle(.white)
                 .rotationEffect(.degrees(Double(rotateCheckMark)))
@@ -68,7 +92,7 @@ struct ProfileSetupLoadingView: View {
                 Circle()
                     .trim(from: 0, to: rotateLoading)
                     .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round, lineJoin: .round))
-                    .foregroundStyle(Color.brand60)
+                    .foregroundStyle(showFailLoading ? Color.destructive60 : Color.brand60)
                     .frame(width: 64)
                     .animation(.linear, value: rotateLoading)
                     .opacity(showLoading ? 1 : 0)
@@ -81,7 +105,11 @@ struct ProfileSetupLoadingView: View {
                 if isSpinnerComplete {
                     Text("Your account was successfully created!")
                 } else {
-                    Text("Creating a personalized financial experience...")
+                    if showFailLoading {
+                        Text("Failed to create your account! Please try again.")
+                    } else {
+                        Text("Creating a personalized financial experience...")
+                    }
                 }
             }
             .multilineTextAlignment(.center)
@@ -141,25 +169,70 @@ struct ProfileSetupLoadingView: View {
     }
     
     private func startLoading() async {
-        try? await Task.sleep(for: .seconds(5))
+        do {
+            let savingsPercentage = viewModel.savingsPercentage
+            let roundedValue = savingsPercentage.rounded(.awayFromZero)
+            let intValue: Int = Int(roundedValue)
+            
+            let result = try await authManager.createUser(
+                withEmail: viewModel.email,
+                password: viewModel.password,
+                fullName: viewModel.fullName,
+                monthlyIncome: viewModel.monthlyIncome,
+                savingsPercentage: intValue
+            )
+            
+            try await userManager.login(auth: result)
+            
+            completeCircleAnimation()
+            
+            await showCircleSymbol()
+            await showTryAgainButton()
+            
+            if !showFailLoading {
+                try? await Task.sleep(for: .seconds(1))
+                withAnimation(.snappy) {
+                    isSpinnerComplete.toggle()
+                }
+                
+                try? await Task.sleep(for: .seconds(3))
+                withAnimation(.bouncy) {
+                    isCheckMarkComplete.toggle()
+                }
+            }
+            
+        } catch {
+            showFailLoading = true
+        }
+    }
+    
+    private func completeCircleAnimation() {
         showLoading = true
         rotateLoading = 1.0
         showCircle = 1
-        rotateCheckMark = 0
-        showCheckMark = 0
-        
-        try? await Task.sleep(for: .seconds(1))
-        withAnimation(.snappy) {
-            isSpinnerComplete.toggle()
+    }
+    
+    private func showCircleSymbol() async {
+        if showFailLoading {
+            isXMarkPresented = true
+        } else {
+            isXMarkPresented = false
         }
         
-        try? await Task.sleep(for: .seconds(3))
-        withAnimation(.bouncy) {
-            isCheckMarkComplete.toggle()
+        try? await Task.sleep(for: .seconds(0.5))
+        rotateCheckMark = 0
+        showCheckMark = 0
+    }
+    
+    private func showTryAgainButton() async {
+        if showFailLoading {
+            try? await Task.sleep(for: .seconds(3))
+            isTryAgainPresented = true
         }
     }
 }
 
 #Preview {
-    ProfileSetupLoadingView()
+    ProfileSetupLoadingView(viewModel: .mock)
+        .previewEnvironment()
 }

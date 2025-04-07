@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		831CC6812D95F6EB001DE185 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 831CC6802D95F6EB001DE185 /* ConfettiSwiftUI */; };
+		8345F2E32DA32232008DA10D /* SwiftfulFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8345F2E22DA32232008DA10D /* SwiftfulFirestore */; };
 		836296742D944EE8008F0858 /* CarouselStack in Frameworks */ = {isa = PBXBuildFile; productRef = 836296732D944EE8008F0858 /* CarouselStack */; };
 		836296762D944EE8008F0858 /* ShuffleIt in Frameworks */ = {isa = PBXBuildFile; productRef = 836296752D944EE8008F0858 /* ShuffleIt */; };
 		83BBF3352DA17CC4000DCB15 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3342DA17CC4000DCB15 /* PopupView */; };
@@ -57,6 +58,7 @@
 				836296742D944EE8008F0858 /* CarouselStack in Frameworks */,
 				83BBF3572DA1CF3E000DCB15 /* FirebaseFirestore in Frameworks */,
 				83BBF3532DA1CF3E000DCB15 /* FirebaseAuth in Frameworks */,
+				8345F2E32DA32232008DA10D /* SwiftfulFirestore in Frameworks */,
 				83BBF3552DA1CF3E000DCB15 /* FirebaseCore in Frameworks */,
 				831CC6812D95F6EB001DE185 /* ConfettiSwiftUI in Frameworks */,
 			);
@@ -119,6 +121,7 @@
 				83BBF3542DA1CF3E000DCB15 /* FirebaseCore */,
 				83BBF3562DA1CF3E000DCB15 /* FirebaseFirestore */,
 				83BBF3582DA1CF3E000DCB15 /* FirebaseStorage */,
+				8345F2E22DA32232008DA10D /* SwiftfulFirestore */,
 			);
 			productName = finpal;
 			productReference = 8313641D2D54129F00D6FA07 /* finpal.app */;
@@ -155,6 +158,7 @@
 				831CC67F2D95F6EB001DE185 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
 				83BBF3332DA17CC4000DCB15 /* XCRemoteSwiftPackageReference "PopupView" */,
 				83BBF3512DA1CF3E000DCB15 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				8345F2E12DA32232008DA10D /* XCRemoteSwiftPackageReference "SwiftfulFirestore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8313641E2D54129F00D6FA07 /* Products */;
@@ -424,6 +428,14 @@
 				kind = branch;
 			};
 		};
+		8345F2E12DA32232008DA10D /* XCRemoteSwiftPackageReference "SwiftfulFirestore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftfulThinking/SwiftfulFirestore.git";
+			requirement = {
+				kind = exactVersion;
+				version = 11.0.1;
+			};
+		};
 		836296722D944EE8008F0858 /* XCRemoteSwiftPackageReference "ShuffleIt" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/dscyrescotti/ShuffleIt.git";
@@ -471,6 +483,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 831CC67F2D95F6EB001DE185 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
 			productName = ConfettiSwiftUI;
+		};
+		8345F2E22DA32232008DA10D /* SwiftfulFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8345F2E12DA32232008DA10D /* XCRemoteSwiftPackageReference "SwiftfulFirestore" */;
+			productName = SwiftfulFirestore;
 		};
 		836296732D944EE8008F0858 /* CarouselStack */ = {
 			isa = XCSwiftPackageProductDependency;
