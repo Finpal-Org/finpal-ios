@@ -127,10 +127,9 @@ struct OnboardingView: View {
     
     private func onFinishOnboarding() {
         Task {
-            try await userManager.markOnboardingCompleteForCurrentUser()
+//            try await userManager.markOnboardingCompleteForCurrentUser()
             
-            router.navigateToLogin()
-            root.updateViewState(showTabBar: true)
+            root.updateViewState(.authentication)
         }
     }
 }

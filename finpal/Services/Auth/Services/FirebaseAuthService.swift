@@ -37,9 +37,9 @@ struct FirebaseAuthService: AuthService {
         return UserAuthInfo(user: result.user)
     }
     
-    func createUser(withEmail email: String, password: String, fullName: String, monthlyIncome: Int, savingsPercentage: Int) async throws -> UserAuthInfo {
+    func createUser(withEmail email: String, password: String) async throws -> UserAuthInfo {
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
-        return UserAuthInfo(user: result.user, fullName: fullName, monthlyIncome: monthlyIncome, savingsPercentage: savingsPercentage)
+        return UserAuthInfo(user: result.user)
     }
     
     func signOut() throws {

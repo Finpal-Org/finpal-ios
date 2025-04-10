@@ -7,6 +7,7 @@
 
 import FirebaseFirestore
 import SwiftfulFirestore
+import FirebaseStorage
 
 typealias ListenerRegistration = FirebaseFirestore.ListenerRegistration
 
@@ -20,7 +21,28 @@ struct FirebaseUserService: RemoteUserService {
         Firestore.firestore().collection("users")
     }
     
-    func saveUser(user: UserModel) async throws {
+    func saveUser(auth: UserAuthInfo, fullName: String, monthlyIncome: Int, savingsPercentage: Int, image: UIImage?) async throws {
+        var url: URL?
+        
+        if let image {
+            let photoName = UUID().uuidString
+            let path = "users/\(auth.uid)/\(photoName)"
+            
+            url = try await FirebaseImageUploadService().uploadImage(image: image, path: path)
+        }
+        
+        let user = UserModel(
+            userId: auth.uid,
+            email: auth.email,
+            fullName: fullName,
+            monthlyIncome: monthlyIncome,
+            savingsPercentage: savingsPercentage,
+            creationDate: auth.creationDate,
+            didCompleteOnboarding: true,
+            didVisitChatbotScreen: false,
+            profileImageURL: url?.absoluteString ?? nil
+        )
+        
         try collection.document(user.userId).setData(from: user, merge: true)
     }
     
@@ -42,5 +64,11 @@ struct FirebaseUserService: RemoteUserService {
     
     func deleteUser(userId: String) async throws {
         try await collection.document(userId).delete()
+    }
+    
+    func fetchCurrentUser(auth: UserAuthInfo) async throws -> UserModel {
+        let snapshot = try await collection.document(auth.uid).getDocument()
+        let user = try snapshot.data(as: UserModel.self)
+        return user
     }
 }

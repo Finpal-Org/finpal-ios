@@ -5,7 +5,7 @@
 //  Created by Abdulkarim Koshak on 3/9/25.
 //
 
-import Foundation
+import SwiftUI
 
 struct MockUserService: RemoteUserService {
     let currentUser: UserModel?
@@ -14,7 +14,7 @@ struct MockUserService: RemoteUserService {
         self.currentUser = user
     }
     
-    func saveUser(user: UserModel) async throws {
+    func saveUser(auth: UserAuthInfo, fullName: String, monthlyIncome: Int, savingsPercentage: Int, image: UIImage?) async throws {
         
     }
     
@@ -36,5 +36,9 @@ struct MockUserService: RemoteUserService {
     
     func deleteUser(userId: String) async throws {
         
+    }
+    
+    func fetchCurrentUser(auth: UserAuthInfo) async throws -> UserModel {
+        .mock
     }
 }

@@ -9,12 +9,13 @@ import SwiftUI
 import ConfettiSwiftUI
 
 struct ProfileSetupLoadingView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
+    @Environment(AuthenticationRouter.self) private var router
+    @Environment(AppState.self) private var appState
     
     let viewModel: ProfileSetupViewModel
-    
-    @Namespace private var animation
     
     @State private var showCircle: Int = 0
     @State private var rotateCheckMark: Int = 30
@@ -27,35 +28,64 @@ struct ProfileSetupLoadingView: View {
     @State private var isXMarkPresented = false
     @State private var isTryAgainPresented = false
     
+    @State private var showPopup = false
+    @State private var errorMessage = ""
+    
     @State private var isSpinnerComplete: Bool = false
     @State private var isCheckMarkComplete: Bool = false
     @State private var isAnimationComplete: Bool = false
     
     var body: some View {
-        VStack(spacing: 32) {
+        ZStack {
             if isCheckMarkComplete {
                 animationView
-                    .matchedGeometryEffect(id: "Setup", in: animation)
             } else {
                 loadingView
-                    .matchedGeometryEffect(id: "Setup", in: animation)
             }
         }
-        .frame(maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
             ZStack {
                 if isTryAgainPresented {
                     Text("Try Again")
                         .callToActionButton()
-                        .transition(.move(edge: .bottom))
                         .anyButton(.press) {
-                            
+                            onTryAgainButtonPressed()
                         }
                 }
+                
+                if isAnimationComplete {
+                    continueButton
+                }
             }
+            .transition(.move(edge: .bottom))
             .padding(24)
         }
         .animation(.bouncy, value: isTryAgainPresented)
+        .animation(.bouncy, value: isAnimationComplete)
+        .onChange(of: showFailLoading) { _, newValue in
+            if newValue {
+                Task {
+                    completeCircleAnimation()
+                    
+                    await showCircleSymbol()
+                    await showTryAgainButton()
+                    
+                    if !showFailLoading {
+                        try? await Task.sleep(for: .seconds(1))
+                        withAnimation(.snappy) {
+                            isSpinnerComplete.toggle()
+                        }
+                        
+                        try? await Task.sleep(for: .seconds(3))
+                        withAnimation(.bouncy) {
+                            isCheckMarkComplete.toggle()
+                        }
+                    }
+                }
+            }
+            
+        }
+        .errorPopup(showingPopup: $showPopup, errorMessage)
     }
     
     private var circleAnimation: some View {
@@ -131,9 +161,6 @@ struct ProfileSetupLoadingView: View {
             Text("Welcome To")
                 .font(.system(size: 24, weight: .regular))
                 .foregroundStyle(Color.gray60)
-                .onTapGesture {
-                    isAnimationComplete.toggle()
-                }
             
             IntroAnimationView {
                 isAnimationComplete.toggle()
@@ -143,28 +170,17 @@ struct ProfileSetupLoadingView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray5)
-        .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
-            ZStack {
-                if isAnimationComplete {
-                    continueButton
-                        .transition(.move(edge: .bottom))
-                }
-            }
-            .padding()
-        }
-        .animation(.bouncy, value: isAnimationComplete)
     }
     
     private var continueButton: some View {
-        NavigationLink {
+        HStack {
+            Text("Let's Go")
             
-        } label: {
-            HStack {
-                Text("Complete")
-                
-                Image(systemName: "checkmark")
-            }
-            .callToActionButton()
+            Image(systemName: "checkmark")
+        }
+        .callToActionButton()
+        .anyButton(.press) {
+            onLetsGoButtonPressed()
         }
     }
     
@@ -174,15 +190,15 @@ struct ProfileSetupLoadingView: View {
             let roundedValue = savingsPercentage.rounded(.awayFromZero)
             let intValue: Int = Int(roundedValue)
             
-            let result = try await authManager.createUser(
-                withEmail: viewModel.email,
-                password: viewModel.password,
+            let result = try await authManager.createUser(withEmail: viewModel.email, password: viewModel.password)
+            
+            try await userManager.saveUser(
+                auth: result,
                 fullName: viewModel.fullName,
                 monthlyIncome: viewModel.monthlyIncome,
-                savingsPercentage: intValue
+                savingsPercentage: intValue,
+                image: viewModel.profileImage
             )
-            
-            try await userManager.login(auth: result)
             
             completeCircleAnimation()
             
@@ -193,6 +209,7 @@ struct ProfileSetupLoadingView: View {
                 try? await Task.sleep(for: .seconds(1))
                 withAnimation(.snappy) {
                     isSpinnerComplete.toggle()
+                    SoundsManager.instance.playPaymentSuccessSound()
                 }
                 
                 try? await Task.sleep(for: .seconds(3))
@@ -200,8 +217,8 @@ struct ProfileSetupLoadingView: View {
                     isCheckMarkComplete.toggle()
                 }
             }
-            
         } catch {
+            errorMessage = error.localizedDescription
             showFailLoading = true
         }
     }
@@ -226,9 +243,20 @@ struct ProfileSetupLoadingView: View {
     
     private func showTryAgainButton() async {
         if showFailLoading {
+            SoundsManager.instance.playPaymentFailSound()
+            
             try? await Task.sleep(for: .seconds(3))
             isTryAgainPresented = true
+            showPopup = true
         }
+    }
+    
+    private func onTryAgainButtonPressed() {
+        router.navigateToSignUp()
+    }
+    
+    private func onLetsGoButtonPressed() {
+        appState.updateViewState(.onboarding)
     }
 }
 

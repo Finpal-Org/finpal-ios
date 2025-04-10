@@ -7,30 +7,22 @@
 
 import SwiftUI
 
-// tabbar - signed in
-// onboarding - new user
-// sign in - signed out
-
 struct AppView: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
     
-    @State var appState: AppState = AppState()
-    
-    @State private var currentUser: UserModel?
-    @State private var showAuthScreen: Bool = false
+    @State var appState = AppState()
     
     @StateObject private var viewRouter = TabBarViewRouter()
     
     var body: some View {
         AppViewBuilder(
-            showTabBar: appState.showTabBar,
+            viewState: appState.viewState,
             tabBar: {
-                if showAuthScreen {
-                    AuthenticationView()
-                } else {
-                    TabBarView(viewRouter: viewRouter)
-                }
+                TabBarView(viewRouter: viewRouter)
+            },
+            auth: {
+                LoginView()
             },
             onboarding: {
                 WelcomeView()
@@ -41,17 +33,6 @@ struct AppView: View {
         .task {
             await checkUserStatus()
         }
-        .onChange(of: appState.showTabBar) { _, showTabBar in
-            if !showTabBar {
-                Task {
-                    await checkUserStatus()
-                }
-            }
-        }
-    }
-    
-    private func loadData() async {
-        self.currentUser = userManager.currentUser
     }
     
     private func checkUserStatus() async {
@@ -60,27 +41,26 @@ struct AppView: View {
             print("User already authenticated: \(user.uid)")
             
             do {
-                try await userManager.login(auth: user)
+                try await userManager.fetchUser(auth: user)
+                appState.updateViewState(.tabBar)
             } catch {
-                print("Failed to log in to auth for existing user: \(error)")
-                try? await Task.sleep(for: .seconds(5))
-                await checkUserStatus()
+                print("Error fetching user data")
+                appState.updateViewState(.authentication)
             }
             
         } else {
             // User is not authenticated
-            showAuthScreen = true
+            
         }
     }
-    
 }
 
 #Preview("AppView - TabBar") {
-    AppView(appState: AppState(showTabBar: true))
+    AppView()
         .previewEnvironment()
 }
 
 #Preview("AppView - Onboarding") {
-    AppView(appState: AppState(showTabBar: false))
+    AppView()
         .previewEnvironment()
 }

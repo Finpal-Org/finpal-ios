@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileSetupView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var appState
     
     @State private var currentIndex: Int = 0
     @State private var viewModel: ProfileSetupViewModel
@@ -31,6 +32,7 @@ struct ProfileSetupView: View {
             
             if currentIndex >= 5 {
                 ProfileSetupLoadingView(viewModel: viewModel)
+                    .environment(appState)
                     .transition(.move(edge: .trailing))
             } else {
                 navigationBar()

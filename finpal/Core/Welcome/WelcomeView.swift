@@ -11,38 +11,36 @@ struct WelcomeView: View {
     @Environment(AuthenticationRouter.self) private var router
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 64) {
-                VStack(spacing: 0) {
-                    Image(.logoPlain)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 64, height: 64)
-                    
-                    Text("finpal")
-                        .font(.title)
-                        .fontWeight(.bold)
-                    
-                    Text("Your Smart Personal Finance AI Companion UI Kit")
-                        .font(.title2)
-                        .fontWeight(.regular)
-                        .foregroundStyle(.gray)
-                        .multilineTextAlignment(.center)
-                        .padding(.top)
-                }
+        VStack(spacing: 64) {
+            VStack(spacing: 0) {
+                Image(.logoPlain)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 64, height: 64)
                 
-                VStack(spacing: 12) {
-                    featuresItemView("Smart Goal Tracking")
-                    featuresItemView("Subscription Management")
-                    featuresItemView("Finance Companion")
-                    featuresItemView("AI-Powered Budgeting")
-                    featuresItemView("Achievements & More!")
-                }
+                Text("finpal")
+                    .font(.title)
+                    .fontWeight(.bold)
                 
-                buttonView
+                Text("Your Smart Personal Finance AI Companion UI Kit")
+                    .font(.title2)
+                    .fontWeight(.regular)
+                    .foregroundStyle(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.top)
             }
-            .padding()
+            
+            VStack(spacing: 12) {
+                featuresItemView("Smart Goal Tracking")
+                featuresItemView("Subscription Management")
+                featuresItemView("Finance Companion")
+                featuresItemView("AI-Powered Budgeting")
+                featuresItemView("Achievements & More!")
+            }
+            
+            buttonView
         }
+        .padding()
     }
     
     private var buttonView: some View {

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct StickyHeaderView: View {
+    let currentUser: UserModel?
+    
     var body: some View {
         GeometryReader { geometry in
             let size = geometry.size
@@ -25,11 +27,7 @@ struct StickyHeaderView: View {
                     .scaleEffect(isScrolling ? 1 + minY / 2000 : 1)
                     .overlay(alignment: .bottom) {
                         ZStack {
-                            ImageLoaderView(urlString: Constants.randomImageURL)
-                                .scaledToFill()
-                            
-                            Circle()
-                                .stroke(Color.white, lineWidth: 6)
+                            profileImageView()
                         }
                         .frame(width: 96, height: 96)
                         .clipShape(.circle)
@@ -39,11 +37,11 @@ struct StickyHeaderView: View {
                 
                 Group {
                     VStack(spacing: 8) {
-                        Text("Member since April 2025")
+                        Text("Member since \(formattedDate)")
                             .font(.system(size: 12, weight: .regular))
                             .foregroundStyle(Color.gray60)
                         
-                        Text("John Doe")
+                        Text(currentUser?.fullName ?? "")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundStyle(Color.gray80)
                             .multilineTextAlignment(.center)
@@ -58,13 +56,62 @@ struct StickyHeaderView: View {
         }
         .frame(height: 385)
     }
+    
+    @ViewBuilder
+    private func profileImageView() -> some View {
+        if let currentUser {
+            
+            if let imageName = currentUser.profileImageURL {
+                userProfileImageView(imageName: imageName)
+            } else {
+                placeholderProfileImageView
+            }
+            
+        } else {
+            placeholderProfileImageView
+        }
+    }
+    
+    private func userProfileImageView(imageName: String) -> some View {
+        ZStack {
+            ImageLoaderView(urlString: imageName)
+                .scaledToFill()
+            
+            Circle()
+                .stroke(Color.white, lineWidth: 6)
+        }
+    }
+    
+    private var placeholderProfileImageView: some View {
+        ZStack {
+            Circle()
+                .foregroundStyle(Color.gray10)
+            
+            Image(systemName: "person")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 45, height: 45)
+                .foregroundStyle(Color.brand60)
+        }
+    }
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        
+        if let creationDate = currentUser?.creationDate {
+            return formatter.string(from: creationDate)
+        } else {
+            return formatter.string(from: .now)
+        }
+    }
 }
 
 private struct PreviewView: View {
     var body: some View {
         ScrollView {
             VStack {
-                StickyHeaderView()
+                StickyHeaderView(currentUser: .mock)
             }
         }
         .ignoresSafeArea()

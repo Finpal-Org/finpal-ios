@@ -20,7 +20,7 @@ struct ProfileView: View {
     var body: some View {
         ScrollView {
             VStack {
-                StickyHeaderView()
+                StickyHeaderView(currentUser: currentUser)
                 
                 VStack(spacing: 32) {
                     generalSettingsView
@@ -47,6 +47,13 @@ struct ProfileView: View {
         .ignoresSafeArea()
         .background(Color.gray5)
         .errorPopup(showingPopup: $showPopup, errorMessage)
+        .task {
+            await loadData()
+        }
+    }
+    
+    private func loadData() async {
+        self.currentUser = userManager.currentUser
     }
     
     private var generalSettingsView: some View {
@@ -118,7 +125,7 @@ struct ProfileView: View {
             .padding(.horizontal)
             
             ProfileSettingsItemView(setting: .deleteAccount, isImportant: true) {
-                
+                onDeleteAccountPressed()
             }
         }
     }
@@ -144,7 +151,23 @@ struct ProfileView: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 60)
-        .padding(.bottom, 60)
+        .padding(.bottom, 40)
+    }
+    
+    private func onDeleteAccountPressed() {
+        Task {
+            do {
+                async let deleteAuth: () = authManager.deleteAccount()
+                async let deleteUser: () = userManager.deleteCurrentUser()
+                
+                let (_, _) = await (try deleteAuth, try deleteUser)
+                
+                await dismissScreen()
+            } catch {
+                errorMessage = "Failed to delete your account. Please try again later."
+                showPopup = true
+            }
+        }
     }
     
     private func onSignOutPressed() {
@@ -163,7 +186,7 @@ struct ProfileView: View {
     
     private func dismissScreen() async {
         try? await Task.sleep(for: .seconds(1))
-        appState.updateViewState(showTabBar: false)
+        appState.updateViewState(.authentication)
     }
 }
 

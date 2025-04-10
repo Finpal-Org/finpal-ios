@@ -28,7 +28,7 @@ struct MockAuthService: AuthService {
         .mock
     }
     
-    func createUser(withEmail email: String, password: String, fullName: String, monthlyIncome: Int, savingsPercentage: Int) async throws -> UserAuthInfo {
+    func createUser(withEmail email: String, password: String) async throws -> UserAuthInfo {
         .mock
     }
     

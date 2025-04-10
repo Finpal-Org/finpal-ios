@@ -17,6 +17,8 @@ struct UserModel: Codable {
     let didCompleteOnboarding: Bool?
     let didVisitChatbotScreen: Bool?
     
+    var profileImageURL: String?
+    
     init(
         userId: String,
         email: String? = nil,
@@ -25,7 +27,8 @@ struct UserModel: Codable {
         savingsPercentage: Int? = nil,
         creationDate: Date? = nil,
         didCompleteOnboarding: Bool? = nil,
-        didVisitChatbotScreen: Bool? = nil
+        didVisitChatbotScreen: Bool? = nil,
+        profileImageURL: String? = nil
     ) {
         self.userId = userId
         self.email = email
@@ -35,17 +38,11 @@ struct UserModel: Codable {
         self.creationDate = creationDate
         self.didCompleteOnboarding = didCompleteOnboarding
         self.didVisitChatbotScreen = didVisitChatbotScreen
+        self.profileImageURL = profileImageURL
     }
     
-    init(auth: UserAuthInfo) {
-        self.init(
-            userId: auth.uid,
-            email: auth.email,
-            fullName: auth.fullName,
-            monthlyIncome: auth.monthlyIncome,
-            savingsPercentage: auth.savingsPercentage,
-            creationDate: auth.creationDate
-        )
+    mutating func updateProfileImage(imageName: String) {
+        self.profileImageURL = imageName
     }
     
     enum CodingKeys: String, CodingKey {
@@ -57,6 +54,7 @@ struct UserModel: Codable {
         case creationDate = "creation_date"
         case didCompleteOnboarding = "did_complete_onboarding"
         case didVisitChatbotScreen = "did_visit_chatbot_screen"
+        case profileImageURL = "profile_image_url"
     }
     
     static var mock: Self {
@@ -68,7 +66,8 @@ struct UserModel: Codable {
             savingsPercentage: 25,
             creationDate: Date(),
             didCompleteOnboarding: true,
-            didVisitChatbotScreen: false
+            didVisitChatbotScreen: false,
+            profileImageURL: Constants.randomImageURL
         )
     }
 }

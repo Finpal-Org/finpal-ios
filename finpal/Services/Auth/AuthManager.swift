@@ -44,8 +44,8 @@ import SwiftUI
         try await service.signIn(withEmail: email, password: password)
     }
     
-    func createUser(withEmail email: String, password: String, fullName: String, monthlyIncome: Int, savingsPercentage: Int) async throws -> UserAuthInfo {
-        try await service.createUser(withEmail: email, password: password, fullName: fullName, monthlyIncome: monthlyIncome, savingsPercentage: savingsPercentage)
+    func createUser(withEmail email: String, password: String) async throws -> UserAuthInfo {
+        try await service.createUser(withEmail: email, password: password)
     }
     
     func signOut() throws {
@@ -73,6 +73,7 @@ enum AppAuthError: Error {
     case tooManyRequests
     case notSignedIn
     case networkError
+    case profileImageUploadFailed
     
     var localizedDescription: String {
         switch self {
@@ -102,32 +103,8 @@ enum AppAuthError: Error {
             return "Please sign in to continue."
         case .networkError:
             return "There was an issue connecting to the server."
+        case .profileImageUploadFailed:
+            return "Failed to upload profile image. Please try again."
         }
     }
 }
-
-/*
- } catch let error as NSError {
-     let authError = AuthErrorCode(rawValue: error.code)
-     switch authError {
-     case .invalidCredential:
-         throw AppAuthError.invalidCredential
-     case .emailAlreadyInUse:
-         throw AppAuthError.emailAlreadyInUse
-     case .invalidEmail:
-         throw AppAuthError.invalidEmail
-     case .wrongPassword:
-         throw AppAuthError.invalidPassword
-     case .tooManyRequests:
-         throw AppAuthError.tooManyRequests
-     case .userNotFound:
-         throw AppAuthError.userNotFound
-     case .networkError:
-         throw AppAuthError.networkError
-     case .weakPassword:
-         throw AppAuthError.invalidPasswordLength
-     default:
-         throw AppAuthError.networkError
-     }
- }
- */

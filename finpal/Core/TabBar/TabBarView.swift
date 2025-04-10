@@ -68,7 +68,7 @@ struct TabBarView: View {
                                 Image(systemName: "plus.circle.fill")
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: geometry.size.width / 7 - 6, height: geometry.size.height / 7 - 6)
+                                    .frame(width: (geometry.size.width / 7) - 6, height: (geometry.size.height / 7) - 6)
                                     .foregroundStyle(.accent)
                                     .rotationEffect(Angle(degrees: showPopUp ? 90 : 0))
                             }
@@ -103,6 +103,7 @@ struct TabBarView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
+            .ignoresSafeArea()
         }
     }
 }
@@ -151,7 +152,7 @@ struct PlusMenu: View {
 
 #Preview {
     TabBarView(viewRouter: TabBarViewRouter())
-        .environment(AppState())
+        .previewEnvironment()
 }
 
 struct TabBarIcon: View {
