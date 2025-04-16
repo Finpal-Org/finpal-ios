@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PaymentInformationView: View {
-    @ObservedObject var viewModel: ScannedReceiptViewModel
+    @Binding var paymentType: PaymentType?
     
     @State private var isPaymentMethodSheetPresented: Bool = false
     
@@ -29,7 +29,7 @@ struct PaymentInformationView: View {
                 .padding(.horizontal, 16)
                 
                 VStack {
-                    if let paymentType = viewModel.paymentType {
+                    if let paymentType {
                         VStack {
                             paymentType.iconName
                                 .resizable()
@@ -80,7 +80,7 @@ struct PaymentInformationView: View {
         }
         .font(.system(size: 14, weight: .medium))
         .sheet(isPresented: $isPaymentMethodSheetPresented) {
-            PaymentEditView(paymentType: $viewModel.paymentType)
+            PaymentEditView(paymentType: $paymentType)
                 .presentationDragIndicator(.visible)
         }
     }
@@ -92,5 +92,5 @@ struct PaymentInformationView: View {
 }
 
 #Preview {
-    PaymentInformationView(viewModel: ScannedReceiptViewModel(receipt: .mock))
+    PaymentInformationView(paymentType: .constant(.applepay))
 }

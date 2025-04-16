@@ -56,7 +56,8 @@ struct RegistrationView: View {
             InputTextFieldView(
                 "Enter your email address...",
                 iconName: "envelope",
-                showError: $viewModel.showEmailError,
+                keyboardType: .emailAddress,
+                error: $viewModel.showEmailError,
                 text: $viewModel.email
             )
         }

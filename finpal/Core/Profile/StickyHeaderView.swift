@@ -21,6 +21,7 @@ struct StickyHeaderView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: size.width, height: isScrolling ? 215 + minY : 215)
+                    .border(width: 1, edges: [.bottom], color: Color.gray30)
                     .clipped()
                     .offset(y: isScrolling ? -minY : 0)
                     .blur(radius: isScrolling ? 0 + minY / 80 : 0)

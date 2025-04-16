@@ -7,7 +7,9 @@
 
 import Foundation
 
-enum CategoryModel: String, CaseIterable {
+enum CategoryModel: String, Identifiable, CaseIterable {
+    var id: Self { self }
+    
     case meal = "Meal"
     case supplies = "Supplies"
     case hotel = "Hotel"

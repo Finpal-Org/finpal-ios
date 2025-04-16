@@ -8,19 +8,28 @@
 import SwiftUI
 
 struct InputTextFieldView: View {
-    let placeholder: String
-    let iconName: String
-    let maxCount: Int?
-    let showError: Binding<Bool>?
-    let text: Binding<String>
+    private var placeholder: String
+    private var iconName: String
+    private var maxCount: Int?
+    private var keyboardType: UIKeyboardType?
+    private var error: Binding<Bool>?
+    private var text: Binding<String>
     
     private let textFieldHeight: CGFloat = 48
     
-    init(_ placeholder: String, iconName: String, maxCount: Int? = nil, showError: Binding<Bool>? = nil, text: Binding<String>) {
+    init(
+        _ placeholder: String,
+        iconName: String,
+        maxCount: Int? = nil,
+        keyboardType: UIKeyboardType? = nil,
+        error: Binding<Bool>? = nil,
+        text: Binding<String>
+    ) {
         self.placeholder = placeholder
         self.iconName = iconName
         self.maxCount = maxCount
-        self.showError = showError
+        self.keyboardType = keyboardType
+        self.error = error
         self.text = text
     }
     
@@ -35,7 +44,7 @@ struct InputTextFieldView: View {
                     .padding(.leading, 12)
                 
                 TextField("", text: text)
-                    .keyboardType(.emailAddress)
+                    .keyboardType(keyboardType ?? .default)
                     .placeholder(when: text.wrappedValue.isEmpty) {
                         Text(placeholder)
                             .font(.system(size: 16, weight: .regular))
@@ -70,7 +79,7 @@ struct InputTextFieldView: View {
     }
     
     private func getStrokeColor() -> Color {
-        if showError?.wrappedValue ?? false {
+        if error?.wrappedValue ?? false {
             return Color.destructive60
         }
         
@@ -86,7 +95,13 @@ private struct PreviewView: View {
         ZStack {
             Color.gray5.ignoresSafeArea()
             
-            InputTextFieldView("Enter your email address...", iconName: "envelope", showError: $showError, text: $email)
+            InputTextFieldView(
+                "Enter your email address...",
+                iconName: "envelope",
+                keyboardType: .emailAddress,
+                error: $showError,
+                text: $email
+            )
         }
     }
 }

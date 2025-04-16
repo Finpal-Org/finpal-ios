@@ -8,25 +8,28 @@
 import SwiftUI
 
 struct LineItemView: View {
-    @StateObject private var viewModel: LineItemViewModel
-    
-    init(viewModel: LineItemViewModel) {
-        self._viewModel = StateObject(wrappedValue: viewModel)
-    }
+    @Binding var lineItems: [LineItemModel]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Items")
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(Color.gray80)
-                .padding([.horizontal, .top])
+            
+            HStack(spacing: 6) {
+                Image(systemName: "receipt")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(Color.gray60)
+                
+                Text("Items")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.gray80)
+            }
+            .padding([.horizontal, .top])
             
             Text("Swipe left to delete an item.")
                 .font(.system(size: 14, weight: .regular))
                 .foregroundStyle(Color.gray60)
                 .padding([.horizontal, .bottom])
             
-            if viewModel.items.isEmpty {
+            if lineItems.isEmpty {
                 Text("No items added yet.")
                     .font(.callout)
                     .foregroundStyle(Color.gray60)
@@ -36,7 +39,7 @@ struct LineItemView: View {
                 
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 12) {
-                        ForEach(viewModel.items) { item in
+                        ForEach(lineItems) { item in
                             swipeItem(item: item)
                         }
                     }
@@ -63,23 +66,14 @@ struct LineItemView: View {
         .foregroundStyle(Color.gray40)
     }
     
-    private var paymentSummary: some View {
-        VStack {
-            Text(viewModel.calculateSubtotal())
-                .font(.title)
-            
-            Text(viewModel.calculateTax())
-                .font(.title)
-            
-            Text(viewModel.calculateTotalPrice())
-                .font(.title)
-        }
-    }
-    
     private func swipeItem(item: LineItemModel) -> some View {
         SwipeItem(
             content: {
-                ItemView(item: $viewModel.items[getIndex(item: item)])
+                LineItemInputView(
+                    quantity: $lineItems[getIndex(item: item)].quantity,
+                    name: $lineItems[getIndex(item: item)].description,
+                    price: $lineItems[getIndex(item: item)].total
+                )
             },
             left: {
                 ZStack {
@@ -102,20 +96,32 @@ struct LineItemView: View {
             itemHeight: 50
         )
         .frame(height: 50)
-        .transition(.move(edge: .trailing))
     }
     
     private func onDeleteButtonPressed(item: LineItemModel) {
-        viewModel.items.removeAll { (item1) -> Bool in
+        lineItems.removeAll { (item1) -> Bool in
             return item.id == item1.id
         }
     }
     
-    func getIndex(item: LineItemModel) -> Int {
-        return viewModel.items.firstIndex(where: { $0.id == item.id }) ?? 0
+    private func getIndex(item: LineItemModel) -> Int {
+        return lineItems.firstIndex(where: { $0.id == item.id }) ?? 0
+    }
+}
+
+private struct PreviewView: View {
+    @State private var items: [LineItemModel] = []
+    
+    var body: some View {
+        VStack {
+            LineItemView(lineItems: $items)
+        }
+        .onAppear {
+            self.items = LineItemModel.mocks
+        }
     }
 }
 
 #Preview {
-    LineItemView(viewModel: LineItemViewModel(items: LineItemModel.mocks))
+    PreviewView()
 }

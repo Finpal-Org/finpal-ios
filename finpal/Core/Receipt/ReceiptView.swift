@@ -6,19 +6,26 @@
 //
 
 import SwiftUI
-import MapKit
 
 struct ReceiptView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(AuthManager.self) private var authManager
     @Environment(ReceiptManager.self) private var receiptManager
+    @Environment(TabBarViewModel.self) private var tabBar
     
-    @StateObject private var viewModel: ScannedReceiptViewModel
+    @State private var viewModel: ReceiptViewModel
     
     @State private var noteText: String = ""
-    @State private var isSaving: Bool = false
-    @State private var showingError: Bool = false
     
-    init(receipt: ReceiptModel) {
-        self._viewModel = StateObject(wrappedValue: ScannedReceiptViewModel(receipt: receipt))
+    @State private var showPopup = false
+    @State private var errorMessage = ""
+    
+    @State private var showSavePopup = false
+    @State private var showSaveError = false
+    @State private var showSaveResult = false
+    
+    init(scannedReceipt: ReceiptModel) {
+        self.viewModel = ReceiptViewModel(scannedReceipt: scannedReceipt)
     }
     
     var body: some View {
@@ -38,16 +45,21 @@ struct ReceiptView: View {
                         NoteButtonView(noteText: $noteText)
                     }
                     
-                    PaymentInformationView(viewModel: viewModel)
+                    PaymentInformationView(paymentType: $viewModel.paymentType)
                     
                     WarrantySectionView()
                 }
                 
                 buttonsSection
             }
+            .scrollIndicators(.hidden)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.gray5)
+        .blur(radius: showSavePopup ? 4 : 0)
+        .disabled(showSavePopup ? true : false)
+        .errorPopup(showingPopup: $showPopup, errorMessage)
+        .savePopup(isPresented: $showSavePopup, error: $showSaveError, result: $showSaveResult)
     }
     
     private var receiptDetailsToolbar: some View {
@@ -78,11 +90,19 @@ struct ReceiptView: View {
     
     private var buttonsSection: some View {
         VStack {
-            HStack {
-                Text("Save Receipt")
-                
-                Image(systemName: "checkmark")
+            ZStack {
+                if showSavePopup {
+                    ProgressView()
+                        .tint(.white)
+                } else {
+                    HStack {
+                        Text("Save Receipt")
+                        
+                        Image(systemName: "checkmark")
+                    }
+                }
             }
+            .disabled(showSavePopup ? true : false)
             .callToActionButton()
             .anyButton(.press) {
                 onSavePressed()
@@ -106,55 +126,75 @@ struct ReceiptView: View {
     }
     
     private func onSavePressed() {
-        isSaving = true
+        showSavePopup = true
         
         Task {
             do {
-                guard let receiptId = Int(viewModel.receiptId) else {
-                    showingError = true
-                    isSaving = false
+                if viewModel.vendorImage == nil {
+                    guard let vendorLogo = viewModel.vendorLogo else {
+                        showSavePopup = false
+                        errorMessage = "Please set the vendor image before saving the receipt."
+                        showPopup = true
+                        return
+                    }
+                    
+                    try await viewModel.loadImageFromURL(from: vendorLogo)
+                }
+                
+                guard let vendorImage = viewModel.vendorImage else {
+                    showSavePopup = false
+                    errorMessage = "Please set the vendor image before saving the receipt."
+                    showPopup = true
                     return
                 }
                 
-                guard let vendorName = viewModel.vendorName, !vendorName.isEmpty else {
-                    showingError = true
-                    isSaving = false
-                    return
-                }
+                let uid = try authManager.getAuthId()
+                let paymentType = viewModel.paymentType ?? .mada
                 
-                guard let vendorLogo = viewModel.vendorLogo, let logoData = vendorLogo.jpegData(compressionQuality: 0.9) else {
-                    showingError = true
-                    isSaving = false
-                    return
-                }
-                
-                let vendor = await PhotoViewModel.saveImage(
-                    receiptId: viewModel.receiptId,
-                    vendorName: vendorName,
-                    data: logoData
+                let payment = PaymentModel(
+                    displayName: paymentType.rawValue,
+                    type: PaymentType.paymentTypeToString(from: paymentType)
                 )
                 
                 let receipt = ReceiptModel(
-                    id: receiptId,
+                    receiptId: UUID().uuidString,
                     category: viewModel.category?.rawValue,
-                    date: viewModel.date.description,
+                    date: viewModel.date?.description,
                     invoiceNumber: viewModel.invoiceNumber,
                     isDuplicate: false,
                     lineItems: viewModel.lineItems,
-                    payment: viewModel.getPayment(),
+                    payment: payment,
                     subtotal: viewModel.subtotal,
                     tax: viewModel.tax,
                     total: viewModel.total,
-                    vendor: vendor
+                    vendor: nil,
+                    authorId: uid,
+                    note: noteText
                 )
                 
-                try await receiptManager.createNewReceipt(receipt: receipt)
+                try await receiptManager.createNewReceipt(
+                    receipt: receipt,
+                    vendorName: viewModel.vendorName,
+                    vendorLogo: vendorImage
+                )
+                
+                showSaveResult = true
+                
+                try await Task.sleep(for: .seconds(8))
+                
+                showSavePopup = false
+                
+                try await Task.sleep(for: .seconds(1))
+                
+                tabBar.showLens = false
+                tabBar.updateCurrentTab(.receipts)
                 
             } catch {
-                print("[finpal - ERROR] Failed to save receipt: \(error.localizedDescription)")
+                print("[finpal - ERROR] Could not save a receipt. \(error.localizedDescription)")
+                showSaveResult = false
             }
             
-            isSaving = false
+            showSavePopup = false
         }
     }
 }
@@ -165,7 +205,7 @@ private struct PreviewView: View {
             ZStack {
                 Color.gray5.ignoresSafeArea()
                 
-                ReceiptView(receipt: .mock)
+                ReceiptView(scannedReceipt: .mock)
             }
             .toolbar(.hidden)
         }

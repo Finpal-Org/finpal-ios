@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReceiptDataView: View {
-    @ObservedObject var viewModel: ScannedReceiptViewModel
+    @Bindable var viewModel: ReceiptViewModel
     
     var body: some View {
         VStack {
@@ -33,19 +33,16 @@ struct ReceiptDataView: View {
     
     private var headerView: some View {
         VStack(spacing: 24) {
-            ImageLoaderView(urlString: viewModel.vendorImage)
-                .frame(width: 75, height: 75)
-                .padding(.top, 32)
-                .offset(y: 15)
+            vendorImageSection
             
             VStack(spacing: 8) {
-                Text(viewModel.vendorName ?? "Not Set")
+                Text(viewModel.vendorName)
                     .font(.title)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.gray80)
                     .multilineTextAlignment(.center)
                 
-                Text(formattedDateWithBullet(date: viewModel.date))
+                Text(viewModel.dateText)
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.gray80)
@@ -66,7 +63,7 @@ struct ReceiptDataView: View {
                 .stroke(Color.gray60, lineWidth: 3)
                 .frame(width: 200, height: 75)
                 .overlay {
-                    Text("#\(viewModel.invoiceNumber ?? "")")
+                    Text("#\(viewModel.invoiceNumber)")
                         .font(.callout)
                         .fontWeight(.semibold)
                         .foregroundStyle(Color.gray60)
@@ -149,25 +146,30 @@ struct ReceiptDataView: View {
         .padding()
     }
     
+    private var vendorImageSection: some View {
+        ZStack {
+            if let selectedImage = viewModel.vendorImage {
+                Image(uiImage: selectedImage)
+                    .resizable()
+            } else if let vendorLogo = viewModel.vendorLogo {
+                ImageLoaderView(urlString: vendorLogo)
+            } else {
+                Image(.logoPlain)
+                    .resizable()
+            }
+        }
+        .scaledToFit()
+        .frame(width: 95, height: 95)
+        .padding(.top, 32)
+        .offset(y: 15)
+    }
+    
     private func getPriceString(for value: Double) -> String {
         let formatter = NumberFormatter()
         formatter.currencyCode = "SAR"
         formatter.numberStyle = .currency
         return formatter.string(from: NSNumber(value: value)) ?? ""
     }
-    
-    private func formattedDateWithBullet(date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        let dateString = dateFormatter.string(from: date)
-        
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "hh:mm a"
-        let timeString = timeFormatter.string(from: date)
-        
-        return "\(dateString) • \(timeString)"
-    }
-    
 }
 
 fileprivate struct Line: Shape {
@@ -182,5 +184,5 @@ fileprivate struct Line: Shape {
 }
 
 #Preview {
-    ReceiptDataView(viewModel: ScannedReceiptViewModel(receipt: .mock))
+    ReceiptDataView(viewModel: ReceiptViewModel(scannedReceipt: .mock))
 }

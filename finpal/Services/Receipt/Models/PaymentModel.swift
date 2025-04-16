@@ -86,6 +86,10 @@ struct PaymentModel: Codable {
         case type
     }
     
+    var paymentTypeEnum: PaymentType {
+        PaymentType(rawValue: type ?? "Mada") ?? .mada
+    }
+    
     static var mock: Self {
         PaymentModel(displayName: "Mada", type: "mada")
     }

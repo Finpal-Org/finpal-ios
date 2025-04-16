@@ -12,14 +12,13 @@ struct AppView: View {
     @Environment(UserManager.self) private var userManager
     
     @State var appState = AppState()
-    
-    @StateObject private var viewRouter = TabBarViewRouter()
+    @State private var tabBar = TabBarViewModel()
     
     var body: some View {
         AppViewBuilder(
             viewState: appState.viewState,
             tabBar: {
-                TabBarView(viewRouter: viewRouter)
+                TabBarView(tabBar: tabBar)
             },
             auth: {
                 LoginView()
@@ -29,6 +28,7 @@ struct AppView: View {
             }
         )
         .withRouter()
+        .environment(tabBar)
         .environment(appState)
         .task {
             await checkUserStatus()

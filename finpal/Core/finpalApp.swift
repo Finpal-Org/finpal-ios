@@ -53,6 +53,7 @@ extension View {
             .environment(ReceiptManager(service: MockReceiptService()))
             .environment(UserManager(services: MockUserServices(user: .mock)))
             .environment(AuthManager(service: MockAuthService(user: .mock)))
+            .environment(TabBarViewModel())
             .environment(AppState())
     }
 }

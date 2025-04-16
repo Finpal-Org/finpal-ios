@@ -65,7 +65,8 @@ struct LoginView: View {
             InputTextFieldView(
                 "Enter your email address...",
                 iconName: "envelope",
-                showError: $viewModel.errorAlert.isPresented,
+                keyboardType: .emailAddress,
+                error: $viewModel.errorAlert.isPresented,
                 text: $viewModel.email
             )
         }

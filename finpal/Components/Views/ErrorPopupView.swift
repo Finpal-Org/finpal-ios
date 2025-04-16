@@ -46,7 +46,7 @@ extension View {
                 parameters
                     .type(.toast)
                     .autohideIn(4)
-                    .dragToDismiss(false)
+                    .dragToDismiss(true)
                     .position(.top)
             }
     }

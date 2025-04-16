@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct VendorLogoView: View {
-    @Binding var vendorLogo: UIImage?
+    @Bindable var viewModel: ReceiptViewModel
     
     @State private var isVendorLogoSheetPresented: Bool = false
     
@@ -16,7 +16,7 @@ struct VendorLogoView: View {
         VStack(spacing: 12) {
             HStack {
                 Text("Vendor Logo")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.gray80)
                 
                 Spacer()
@@ -24,16 +24,7 @@ struct VendorLogoView: View {
             .padding(.horizontal)
             
             VStack(spacing: 16) {
-                if let vendorLogo {
-                    Image(uiImage: vendorLogo)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 180)
-                        .clipShape(.rect(cornerRadius: 24))
-                } else {
-                    missingLogoView
-                }
-                
+                vendorImageSection
                 updateLogoButton
             }
             .padding(16)
@@ -44,9 +35,28 @@ struct VendorLogoView: View {
             .mediumShadow()
         }
         .sheet(isPresented: $isVendorLogoSheetPresented) {
-            VendorLogoSheetView(vendorLogo: $vendorLogo)
+            VendorLogoSheetView(vendorLogo: $viewModel.vendorImage)
                 .presentationDetents([.fraction(0.55)])
                 .presentationDragIndicator(.visible)
+        }
+    }
+    
+    private var vendorImageSection: some View {
+        ZStack {
+            if let selectedImage = viewModel.vendorImage {
+                Image(uiImage: selectedImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 180)
+                    .clipShape(.rect(cornerRadius: 24))
+            } else if let vendorLogo = viewModel.vendorLogo {
+                ImageLoaderView(urlString: vendorLogo)
+                    .scaledToFit()
+                    .frame(height: 180)
+                    .clipShape(.rect(cornerRadius: 24))
+            } else {
+                missingLogoView
+            }
         }
     }
     
@@ -93,5 +103,5 @@ struct VendorLogoView: View {
 }
 
 #Preview {
-    VendorLogoView(vendorLogo: .constant(nil))
+    VendorLogoView(viewModel: ReceiptViewModel(scannedReceipt: .mock))
 }

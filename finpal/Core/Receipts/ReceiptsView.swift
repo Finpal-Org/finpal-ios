@@ -8,6 +8,14 @@
 import SwiftUI
 
 struct ReceiptsView: View {
+    @Environment(AuthManager.self) private var authManager
+    @Environment(UserManager.self) private var userManager
+    @Environment(ReceiptManager.self) private var receiptManager
+    
+    @State private var myReceipts: [ReceiptModel] = []
+    @State private var isLoading: Bool = true
+    @State private var showView = false
+    
     @State private var searchText = ""
     
     var body: some View {
@@ -15,9 +23,27 @@ struct ReceiptsView: View {
             titleSection
             searchFieldSection
             sortOptionsSection
+            myReceiptsSection
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.gray5)
+        .task {
+            await loadData()
+        }
+        .onAppear {
+            showView = true
+        }
+    }
+    
+    private func loadData() async {
+        do {
+            let uid = try authManager.getAuthId()
+            myReceipts = try await receiptManager.getReceiptsForAuthor(userId: uid)
+        } catch {
+            print("[finpal - DEBUG] Failed to fetch user's receipts.")
+        }
+        
+        isLoading = false
     }
     
     private var titleSection: some View {
@@ -142,8 +168,27 @@ struct ReceiptsView: View {
         .padding(.horizontal, 14)
     }
     
+    private var myReceiptsSection: some View {
+        ZStack {
+            if myReceipts.isEmpty {
+                Group {
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Text("Click to add receipts")
+                    }
+                }
+                .padding(40)
+                .frame(maxWidth: .infinity)
+            } else {
+                ReceiptsRowView(showView: $showView, receipts: $myReceipts)
+            }
+        }
+    }
+    
 }
 
 #Preview {
     ReceiptsView()
+        .previewEnvironment()
 }

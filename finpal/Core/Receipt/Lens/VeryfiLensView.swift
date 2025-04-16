@@ -27,7 +27,7 @@ struct VeryfiLensView: View {
                 }
                 
                 if let document {
-                    ReceiptView(receipt: document.data)
+                    ReceiptView(scannedReceipt: document.data)
                 } else {
                     UtilityScanFailedView()
                         .opacity(isProcessing ? 0 : 1)

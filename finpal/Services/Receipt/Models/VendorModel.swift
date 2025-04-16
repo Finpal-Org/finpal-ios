@@ -9,11 +9,15 @@ import Foundation
 
 struct VendorModel: Codable {
     let name: String?
-    let logoURL: String?
+    private(set) var logoURL: String?
     
     init(name: String? = nil, logoURL: String? = nil) {
         self.name = name
         self.logoURL = logoURL
+    }
+    
+    mutating func updateLogoImage(imageName: String) {
+        logoURL = imageName
     }
     
     enum CodingKeys: String, CodingKey {
