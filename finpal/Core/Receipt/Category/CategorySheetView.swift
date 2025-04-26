@@ -10,7 +10,7 @@ import SwiftUI
 struct CategorySheetView: View {
     @Environment(\.dismiss) private var dismiss
     
-    @Binding var category: CategoryModel?
+    @Binding var category: CategoryModel
     
     @State private var selectedCategory: CategoryModel?
     @State private var showingError: Bool = false
@@ -135,7 +135,7 @@ private struct CategoryCell: View {
 }
 
 private struct PreviewView: View {
-    @State private var selectedCategory: CategoryModel? = .transportation
+    @State private var selectedCategory: CategoryModel = .transportation
     
     var body: some View {
         ZStack {

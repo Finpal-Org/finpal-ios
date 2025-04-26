@@ -69,7 +69,7 @@ enum PaymentType: String, CaseIterable {
     }
 }
 
-struct PaymentModel: Codable {
+struct PaymentModel: Hashable, Codable {
     let displayName: String?
     let type: String?
     

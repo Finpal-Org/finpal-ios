@@ -8,13 +8,9 @@
 import Foundation
 
 struct DocumentModel: Codable {
-    let packageID: String
-    let data: ReceiptModel
-    let status: String
+    let data: ScannedReceiptModel
     
     enum CodingKeys: String, CodingKey {
-        case packageID = "package_id"
         case data
-        case status
     }
 }

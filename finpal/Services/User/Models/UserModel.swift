@@ -66,7 +66,7 @@ struct UserModel: Codable {
             savingsPercentage: 25,
             creationDate: Date(),
             didCompleteOnboarding: true,
-            didVisitChatbotScreen: false,
+            didVisitChatbotScreen: true,
             profileImageURL: Constants.randomImageURL
         )
     }

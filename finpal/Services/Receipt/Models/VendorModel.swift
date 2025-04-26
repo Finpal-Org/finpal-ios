@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct VendorModel: Codable {
+struct VendorModel: Hashable, Codable {
     let name: String?
     private(set) var logoURL: String?
     

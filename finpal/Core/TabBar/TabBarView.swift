@@ -31,42 +31,59 @@ enum TabSelection: String, Hashable {
 }
 
 struct TabBarView: View {
-    @Bindable var tabBar: TabBarViewModel
+    @Environment(TabBarState.self) private var tabBar
+    
+    @State private var selectedTab = TabSelection.home
+    @State private var navigateToChatbot = false
     
     var body: some View {
         if tabBar.showLens {
-            VeryfiLensView()
+            VeryfiLensView(tabBar: tabBar)
         } else {
-            ZStack(alignment: .bottom) {
-                TabView(selection: $tabBar.currentTab) {
-                    switch tabBar.currentTab {
-                    case .home:
-                        HomeView()
-                    case .receipts:
-                        ReceiptsView()
-                    case .veryfi:
-                        EmptyView()
-                    case .chatbot:
-                        Text("Hello")
-                    case .profile:
-                        ProfileView()
+            NavigationStack {
+                ZStack(alignment: .bottom) {
+                    TabView(selection: $selectedTab) {
+                        switch selectedTab {
+                        case .home:
+                            HomeView()
+                        case .receipts:
+                            ReceiptsView()
+                        case .veryfi:
+                            EmptyView()
+                        case .chatbot:
+                            EmptyView()
+                        case .profile:
+                            ProfileView()
+                        }
                     }
+                    
+                    HStack(spacing: 32) {
+                        TabBarItem(selectedTab: $selectedTab, tab: .home) {
+                            selectedTab = .home
+                        }
+                        
+                        TabBarItem(selectedTab: $selectedTab, tab: .receipts) {
+                            selectedTab = .receipts
+                        }
+                        
+                        plusItemView
+                        
+                        TabBarItem(selectedTab: $selectedTab, tab: .chatbot) {
+                            navigateToChatbot = true
+                        }
+                        
+                        TabBarItem(selectedTab: $selectedTab, tab: .profile) {
+                            selectedTab = .profile
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .border(width: 2, edges: [.top], color: Color.gray10)
                 }
-                
-                HStack(spacing: 32) {
-                    TabBarItem(selectedTab: $tabBar.currentTab, tab: .home)
-                    
-                    TabBarItem(selectedTab: $tabBar.currentTab, tab: .receipts)
-                    
-                    plusItemView
-                    
-                    TabBarItem(selectedTab: $tabBar.currentTab, tab: .chatbot)
-                    
-                    TabBarItem(selectedTab: $tabBar.currentTab, tab: .profile)
+                .navigationDestination(isPresented: $navigateToChatbot) {
+                    ChatbotChatView()
+                        .navigationBarBackButtonHidden()
                 }
-                .frame(maxWidth: .infinity)
-                .background(Color.white)
-                .border(width: 2, edges: [.top], color: Color.gray10)
             }
         }
     }
@@ -85,7 +102,7 @@ struct TabBarView: View {
         }
         .padding(.top, 6)
         .onTapGesture {
-            tabBar.showLens = true
+            tabBar.showVeryfiLens()
         }
     }
 }
@@ -93,7 +110,8 @@ struct TabBarView: View {
 struct TabBarItem: View {
     @Binding var selectedTab: TabSelection
     
-    let tab: TabSelection
+    var tab: TabSelection
+    var onTap: () -> Void
     
     var body: some View {
         VStack(spacing: 6) {
@@ -110,7 +128,7 @@ struct TabBarItem: View {
         }
         .padding(.top, 12)
         .onTapGesture {
-            selectedTab = tab
+            onTap()
         }
     }
 }
@@ -139,6 +157,6 @@ struct EdgeBorder: Shape {
 }
 
 #Preview {
-    TabBarView(tabBar: TabBarViewModel())
+    TabBarView()
         .previewEnvironment()
 }

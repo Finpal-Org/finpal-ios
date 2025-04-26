@@ -9,29 +9,31 @@ import SwiftUI
 
 struct ReceiptsView: View {
     @Environment(AuthManager.self) private var authManager
-    @Environment(UserManager.self) private var userManager
     @Environment(ReceiptManager.self) private var receiptManager
     
+    @State private var viewModel = ReceiptsViewModel()
+    
     @State private var myReceipts: [ReceiptModel] = []
-    @State private var isLoading: Bool = true
-    @State private var showView = false
+    @State private var isLoading = true
     
     @State private var searchText = ""
     
+    @State private var path: [NavigationPathOption] = []
+    
     var body: some View {
-        VStack(spacing: 24) {
-            titleSection
-            searchFieldSection
-            sortOptionsSection
-            myReceiptsSection
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.gray5)
-        .task {
-            await loadData()
-        }
-        .onAppear {
-            showView = true
+        NavigationStack(path: $path) {
+            VStack(spacing: 24) {
+                titleSection
+                searchFieldSection
+                sortOptionsSection
+                myReceiptsSection
+            }
+            .navigationDestinationForCoreModule(path: $path)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Color.gray5)
+            .task {
+                await loadData()
+            }
         }
     }
     
@@ -103,89 +105,71 @@ struct ReceiptsView: View {
                 
                 Spacer()
                 
-                HStack {
-                    Image(systemName: "calendar")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(Color.brand60)
-                    
-                    Text("Sort By: Date")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.gray80)
-                    
-                    Image(systemName: "chevron.down")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 15, height: 15)
-                        .foregroundStyle(Color.gray60)
-                        .fontWeight(.semibold)
-                }
+                SelectSortOrderView(sortType: $viewModel.sortType)
             }
             
-            ScrollView(.horizontal) {
-                HStack(spacing: 8) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "archivebox")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(Color.gray60)
-                            .fontWeight(.semibold)
-                        
-                        Text("All")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Color.gray60)
-                    }
-                    .frame(height: 40)
-                    .padding(.horizontal, 16)
-                    .background(Color.white, in: .capsule)
-                    .mediumShadow()
-                    
-                    ForEach(CategoryModel.allCases, id: \.self) { category in
-                        HStack(spacing: 8) {
-                            Image(systemName: category.iconName)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                                .foregroundStyle(Color.gray60)
-                                .fontWeight(.semibold)
-                            
-                            Text(category.rawValue)
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(Color.gray60)
-                        }
-                        .frame(height: 40)
-                        .padding(.horizontal, 16)
-                        .background(Color.white, in: .capsule)
-                        .mediumShadow()
-                    }
-                }
-            }
-            .scrollIndicators(.hidden)
-            
+            FilterCategoriesView(selectedCategories: $viewModel.selectedCategories)
         }
         .padding(.horizontal, 14)
     }
     
-    private var myReceiptsSection: some View {
-        ZStack {
-            if myReceipts.isEmpty {
-                Group {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Text("Click to add receipts")
-                    }
-                }
-                .padding(40)
-                .frame(maxWidth: .infinity)
-            } else {
-                ReceiptsRowView(showView: $showView, receipts: $myReceipts)
+    private var noReceiptsFound: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "receipt")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.gray40)
+            
+            VStack(spacing: 12) {
+                Text("No receipts found")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(Color.gray80)
+                
+                Text("It looks like you don’t have any receipts. Once you add one, it will appear here.")
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.gray60)
             }
         }
     }
     
+    private var myReceiptsSection: some View {
+        ScrollView {
+            LazyVStack {
+                if myReceipts.isEmpty {
+                    Group {
+                        if isLoading {
+                            ProgressView()
+                                .tint(Color.brand60)
+                        } else {
+                            noReceiptsFound
+                        }
+                    }
+                    .padding(40)
+                    .frame(maxWidth: .infinity)
+                } else {
+                    StaggeredView {
+                        ForEach(viewModel.sortedReceipts(myReceipts: myReceipts)) { receipt in
+                            CustomListCellView(
+                                imageName: receipt.vendor?.logoURL,
+                                title: receipt.vendor?.name,
+                                subtitle: receipt.category,
+                                dateText: receipt.dateText,
+                                amount: receipt.total
+                            )
+                            .anyButton(.press) {
+                                onReceiptPressed(receipt: receipt)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+    
+    private func onReceiptPressed(receipt: ReceiptModel) {
+        path.append(.receipt(receipt: receipt))
+    }
 }
 
 #Preview {

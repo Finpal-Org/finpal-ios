@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum CategoryModel: String, Identifiable, CaseIterable {
+enum CategoryModel: String, Identifiable, CaseIterable, Hashable, Codable {
     var id: Self { self }
     
     case meal = "Meal"
@@ -44,9 +44,5 @@ enum CategoryModel: String, Identifiable, CaseIterable {
         case .healthcare:
             return "cross"
         }
-    }
-    
-    static func stringToCategory(from string: String) -> CategoryModel? {
-        return CategoryModel(rawValue: string)
     }
 }

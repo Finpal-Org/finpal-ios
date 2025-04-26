@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RouterViewModifier: ViewModifier {
-    @State private var router = AuthenticationRouter()
+    @State private var router = Router()
     
     private func routeView(for route: Route) -> some View {
         Group {
@@ -17,14 +17,20 @@ struct RouterViewModifier: ViewModifier {
                 OnboardingView()
             case .login:
                 LoginView()
-            case .signUp:
-                RegistrationView()
-            case .setup(email: let email, password: let password):
+            case .register:
+                Text("Register")
+            case .setup(let email, let password):
                 ProfileSetupView(email: email, password: password)
+            case .tabBar:
+                TabBarView()
+            case .receiptDetails(let receipt):
+                ReceiptDetailsView(receipt: receipt)
+            case .exportData:
+                ExportDataView()
             }
         }
-        .environment(router)
         .navigationBarBackButtonHidden()
+        .environment(router)
     }
     
     func body(content: Content) -> some View {
@@ -35,12 +41,5 @@ struct RouterViewModifier: ViewModifier {
                     routeView(for: route)
                 }
         }
-    }
-}
-
-extension View {
-    
-    func withRouter() -> some View {
-        modifier(RouterViewModifier())
     }
 }

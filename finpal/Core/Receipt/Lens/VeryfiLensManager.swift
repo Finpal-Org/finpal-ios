@@ -10,12 +10,17 @@ import VeryfiLens
 
 class VeryfiLensManager {
     
+    private var tabBarState: TabBarState
     private var eventListener: ((_ document: DocumentModel?, _ isProcessing: Bool) -> Void)?
     
+    init(tabBarState: TabBarState) {
+        self.tabBarState = tabBarState
+    }
+    
     func configure() {
-        let CLIENT_ID = KeysConfiguration.clientId
-        let AUTH_USERNAME = KeysConfiguration.authUsername
-        let AUTH_APIKEY = KeysConfiguration.authApiKey
+        let CLIENT_ID = Keys.veryfiClientID
+        let AUTH_USERNAME = Keys.veryfiAuthUsername
+        let AUTH_APIKEY = Keys.veryfiAuthAPIKey
         let URL = "https://api.veryfi.com/"
         
         let credentials = VeryfiLensCredentials(

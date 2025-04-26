@@ -38,7 +38,7 @@ struct ErrorPopupView: View {
 
 extension View {
     
-    func errorPopup(showingPopup: Binding<Bool>, _ message: String) -> some View {
+    func errorPopup(showingPopup: Binding<Bool>, _ message: String, action: (() -> ())? = nil) -> some View {
         self
             .popup(isPresented: showingPopup) {
                 ErrorPopupView(message: message)
@@ -48,6 +48,11 @@ extension View {
                     .autohideIn(4)
                     .dragToDismiss(true)
                     .position(.top)
+                    .dismissCallback {
+                        if let action {
+                            action()
+                        }
+                    }
             }
     }
 }
@@ -64,7 +69,9 @@ private struct PreviewView: View {
             }
             
         }
-        .errorPopup(showingPopup: $showPopup, "Test Error Message")
+        .errorPopup(showingPopup: $showPopup, "Test Error Message") {
+            print("Disappeared...")
+        }
     }
 }
 

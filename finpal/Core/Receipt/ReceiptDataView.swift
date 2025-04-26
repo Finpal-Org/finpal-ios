@@ -105,7 +105,7 @@ struct ReceiptDataView: View {
             
             Spacer()
             
-            Text(getPriceString(for: price))
+            Text(getPriceString(for: Float(price)))
         }
         .padding(.horizontal)
     }
@@ -164,7 +164,7 @@ struct ReceiptDataView: View {
         .offset(y: 15)
     }
     
-    private func getPriceString(for value: Double) -> String {
+    private func getPriceString(for value: Float) -> String {
         let formatter = NumberFormatter()
         formatter.currencyCode = "SAR"
         formatter.numberStyle = .currency

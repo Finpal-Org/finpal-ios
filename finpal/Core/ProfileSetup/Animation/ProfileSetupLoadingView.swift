@@ -10,10 +10,9 @@ import ConfettiSwiftUI
 
 struct ProfileSetupLoadingView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var appState
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
-    @Environment(AuthenticationRouter.self) private var router
-    @Environment(AppState.self) private var appState
     
     let viewModel: ProfileSetupViewModel
     
@@ -46,11 +45,12 @@ struct ProfileSetupLoadingView: View {
         .safeAreaInset(edge: .bottom, alignment: .center, spacing: 16) {
             ZStack {
                 if isTryAgainPresented {
-                    Text("Try Again")
-                        .callToActionButton()
-                        .anyButton(.press) {
-                            onTryAgainButtonPressed()
-                        }
+//                    NavigationLink {
+//                        RegistrationView()
+//                    } label: {
+//                        Text("Try Again")
+//                            .callToActionButton()
+//                    }
                 }
                 
                 if isAnimationComplete {
@@ -251,12 +251,8 @@ struct ProfileSetupLoadingView: View {
         }
     }
     
-    private func onTryAgainButtonPressed() {
-        router.navigateToSignUp()
-    }
-    
     private func onLetsGoButtonPressed() {
-        appState.updateViewState(.onboarding)
+        appState.showAuthScreen(showAuth: false)
     }
 }
 

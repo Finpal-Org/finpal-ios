@@ -25,6 +25,7 @@ struct finpalApp: App {
     var body: some Scene {
         WindowGroup {
             AppView()
+                .environment(delegate.dependencies.aiManager)
                 .environment(delegate.dependencies.receiptManager)
                 .environment(delegate.dependencies.userManager)
                 .environment(delegate.dependencies.authManager)
@@ -36,24 +37,26 @@ struct finpalApp: App {
 struct Dependencies {
     let authManager: AuthManager
     let userManager: UserManager
+    let aiManager: AIManager
     let receiptManager: ReceiptManager
     
     init() {
         authManager = AuthManager(service: FirebaseAuthService())
         userManager = UserManager(services: ProductionUserServices())
+        aiManager = AIManager(service: OpenAIService())
         receiptManager = ReceiptManager(service: FirebaseReceiptService())
     }
 }
 
 extension View {
     
-    func previewEnvironment(isSignedIn: Bool = true) -> some View {
+    func previewEnvironment() -> some View {
         self
-            .withRouter()
             .environment(ReceiptManager(service: MockReceiptService()))
+            .environment(AIManager(service: MockAIService()))
             .environment(UserManager(services: MockUserServices(user: .mock)))
             .environment(AuthManager(service: MockAuthService(user: .mock)))
-            .environment(TabBarViewModel())
+            .environment(TabBarState())
             .environment(AppState())
     }
 }

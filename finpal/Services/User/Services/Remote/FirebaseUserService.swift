@@ -21,6 +21,10 @@ struct FirebaseUserService: RemoteUserService {
         Firestore.firestore().collection("users")
     }
     
+    private var storageRef: StorageReference {
+        Storage.storage().reference()
+    }
+    
     func saveUser(auth: UserAuthInfo, fullName: String, monthlyIncome: Int, savingsPercentage: Int, image: UIImage?) async throws {
         var url: URL?
         
@@ -63,7 +67,19 @@ struct FirebaseUserService: RemoteUserService {
     }
     
     func deleteUser(userId: String) async throws {
+        print("[DEBUG] deleteUser \(userId) started")
+        
+        let storageRef = storageRef.child("users/\(userId)")
+        let result = try await storageRef.listAll()
+        
+        for item in result.items {
+            print("[DEBUG] item: \(item.name)")
+            try await item.delete()
+            print("[DEBUG] item: \(item.name) deleted")
+        }
+        
         try await collection.document(userId).delete()
+        print("[DEBUG] Firestore deleteUser \(userId) completed")
     }
     
     func fetchCurrentUser(auth: UserAuthInfo) async throws -> UserModel {

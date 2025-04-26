@@ -23,8 +23,7 @@ import SwiftUI
     
     func fetchUser(auth: UserAuthInfo) async throws {
         let user = try await remote.fetchCurrentUser(auth: auth)
-        self.currentUser = user
-        print("Successfully listened to user: \(user.userId)")
+        addCurrentUserListener(userId: user.userId)
     }
     
     func saveUser(auth: UserAuthInfo, fullName: String, monthlyIncome: Int, savingsPercentage: Int, image: UIImage?) async throws {
@@ -33,23 +32,23 @@ import SwiftUI
 //        addCurrentUserListener(userId: auth.uid)
     }
     
-//    func addCurrentUserListener(userId: String) {
-//        currentUserListener?.remove()
-//        
-//        Task {
-//            do {
-//                for try await value in remote.streamUser(userId: userId, onListenerConfigured: { listener in
-//                    self.currentUserListener = listener
-//                }) {
-//                    self.currentUser = value
-//                    self.saveCurrentUserLocally()
-//                    print("Successfully listened to user: \(value.userId)")
-//                }
-//            } catch {
-//                print("Error attaching user listener: \(error)")
-//            }
-//        }
-//    }
+    func addCurrentUserListener(userId: String) {
+        currentUserListener?.remove()
+        
+        Task {
+            do {
+                for try await value in remote.streamUser(userId: userId, onListenerConfigured: { listener in
+                    self.currentUserListener = listener
+                }) {
+                    self.currentUser = value
+                    self.saveCurrentUserLocally()
+                    print("Successfully listened to user: \(value.userId)")
+                }
+            } catch {
+                print("Error attaching user listener: \(error)")
+            }
+        }
+    }
     
     private func saveCurrentUserLocally() {
         Task {

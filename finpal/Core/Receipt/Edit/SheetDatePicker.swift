@@ -8,11 +8,17 @@
 import SwiftUI
 
 struct SheetDatePicker: View {
-    @Binding var date: Date
+    private var date: Binding<Date>
+    private var showTime: Bool = true
     
     @Environment(\.dismiss) private var dismiss
     
     @State private var currentDate: Date = .now
+    
+    init(date: Binding<Date>, showTime: Bool = true) {
+        self.date = date
+        self.showTime = showTime
+    }
     
     var body: some View {
         VStack(spacing: 24) {
@@ -39,31 +45,33 @@ struct SheetDatePicker: View {
             )
             .datePickerStyle(GraphicalDatePickerStyle())
             
-            HStack {
-                Text("Time")
-                    .font(.callout)
-                    .fontWeight(.bold)
-                
-                Spacer()
-                
-                Capsule()
-                    .stroke(Color.gray30, lineWidth: 1)
-                    .frame(width: 108, height: 32)
-                    .overlay {
-                        HStack(spacing: 8) {
-                            Text(currentDate.toString("hh:mm a"))
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(Color.gray60)
-                            
-                            Image(systemName: "chevron.down")
-                                .imageScale(.small)
-                                .foregroundStyle(Color.gray60)
+            if showTime {
+                HStack {
+                    Text("Time")
+                        .font(.callout)
+                        .fontWeight(.bold)
+                    
+                    Spacer()
+                    
+                    Capsule()
+                        .stroke(Color.gray30, lineWidth: 1)
+                        .frame(width: 108, height: 32)
+                        .overlay {
+                            HStack(spacing: 8) {
+                                Text(currentDate.toString("hh:mm a"))
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundStyle(Color.gray60)
+                                
+                                Image(systemName: "chevron.down")
+                                    .imageScale(.small)
+                                    .foregroundStyle(Color.gray60)
+                            }
                         }
-                    }
-                    .overlay {
-                        DatePicker("", selection: $currentDate, displayedComponents: [.hourAndMinute])
-                            .blendMode(.destinationOver)
-                    }
+                        .overlay {
+                            DatePicker("", selection: $currentDate, displayedComponents: [.hourAndMinute])
+                                .blendMode(.destinationOver)
+                        }
+                }
             }
             
             HStack {
@@ -80,7 +88,7 @@ struct SheetDatePicker: View {
     }
     
     private func onSetDateButtonPressed() {
-        date = currentDate
+        date.wrappedValue = currentDate
         dismiss()
     }
     
@@ -93,7 +101,7 @@ private struct PreviewView: View {
     @State private var selectedDate: Date = .now
     
     var body: some View {
-        SheetDatePicker(date: $selectedDate)
+        SheetDatePicker(date: $selectedDate, showTime: false)
     }
 }
 

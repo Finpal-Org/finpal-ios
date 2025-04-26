@@ -1,29 +1,41 @@
 //
-//  SignInViewModel.swift
+//  LoginViewModel.swift
 //  finpal
 //
-//  Created by Abdulkarim Koshak on 4/6/25.
+//  Created by Abdulkarim Koshak on 4/19/25.
 //
 
 import SwiftUI
+import Observation
 
-@MainActor
-@Observable final class SignInViewModel {
+@Observable class LoginViewModel {
     var email = ""
-    var password = ""
-    var errorAlert: (isPresented: Bool, message: String) = (false, "")
-    var isLoading = false
+    var showEmailError = false
     
-    private func validateFields() throws {
+    var password = ""
+    var showPasswordError = false
+    
+    var showPopup = false
+    var errorMessage = ""
+    
+    func clearErrors() {
+        showEmailError = false
+        showPasswordError = false
+    }
+    
+    func validateForm() throws {
         if email.isEmpty {
+            showEmailError = true
             throw AppAuthError.emailRequired
         }
         
         if !isValidEmail(email) {
+            showEmailError = true
             throw AppAuthError.invalidEmail
         }
         
         if password.isEmpty {
+            showPasswordError = true
             throw AppAuthError.passwordRequired
         }
     }
@@ -32,9 +44,5 @@ import SwiftUI
         let emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
         let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
         return emailPredicate.evaluate(with: email)
-    }
-    
-    func signIn() {
-        
     }
 }

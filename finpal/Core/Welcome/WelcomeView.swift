@@ -8,50 +8,52 @@
 import SwiftUI
 
 struct WelcomeView: View {
-    @Environment(AuthenticationRouter.self) private var router
-    
     var body: some View {
-        VStack(spacing: 64) {
-            VStack(spacing: 0) {
-                Image(.logoPlain)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 64, height: 64)
+        NavigationStack {
+            VStack(spacing: 64) {
+                VStack(spacing: 0) {
+                    Image(.logoPlain)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 64, height: 64)
+                    
+                    Text("finpal")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    Text("Your Smart Personal Finance AI Companion UI Kit")
+                        .font(.title2)
+                        .fontWeight(.regular)
+                        .foregroundStyle(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.top)
+                }
                 
-                Text("finpal")
-                    .font(.title)
-                    .fontWeight(.bold)
+                VStack(spacing: 12) {
+                    featuresItemView("Smart Goal Tracking")
+                    featuresItemView("Subscription Management")
+                    featuresItemView("Finance Companion")
+                    featuresItemView("AI-Powered Budgeting")
+                    featuresItemView("Achievements & More!")
+                }
                 
-                Text("Your Smart Personal Finance AI Companion UI Kit")
-                    .font(.title2)
-                    .fontWeight(.regular)
-                    .foregroundStyle(.gray)
-                    .multilineTextAlignment(.center)
-                    .padding(.top)
+                buttonView
             }
-            
-            VStack(spacing: 12) {
-                featuresItemView("Smart Goal Tracking")
-                featuresItemView("Subscription Management")
-                featuresItemView("Finance Companion")
-                featuresItemView("AI-Powered Budgeting")
-                featuresItemView("Achievements & More!")
-            }
-            
-            buttonView
+            .padding()
         }
-        .padding()
     }
     
     private var buttonView: some View {
-        HStack {
-            Text("Get Started")
-            
-            Image(systemName: "arrow.right")
-        }
-        .callToActionButton()
-        .anyButton(.press) {
-            router.navigateToOnboarding()
+        NavigationLink {
+            OnboardingView()
+                .navigationBarBackButtonHidden()
+        } label: {
+            HStack {
+                Text("Get Started")
+                
+                Image(systemName: "arrow.right")
+            }
+            .callToActionButton()
         }
     }
     
@@ -70,5 +72,4 @@ struct WelcomeView: View {
 
 #Preview {
     WelcomeView()
-        .previewEnvironment()
 }

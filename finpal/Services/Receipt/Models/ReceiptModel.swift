@@ -8,41 +8,41 @@
 import Foundation
 import IdentifiableByString
 
-struct ReceiptModel: Codable, StringIdentifiable {
-    var id: String {
-        receiptId
-    }
+struct ReceiptModel: Identifiable, Codable, Hashable, StringIdentifiable {
+    let id: String
+    let userId: String
+    let category: CategoryModel
+    let date: Date
+    let invoiceNumber: String
+    let isDuplicate: Bool
+    let lineItems: [LineItemModel]
+    let payment: PaymentModel
+    let subtotal: Float
+    let tax: Float
+    let total: Float
+    let note: String
     
-    let receiptId: String
-    let category: String?
-    let date: String?
-    let invoiceNumber: String?
-    let isDuplicate: Bool?
-    let lineItems: [LineItemModel]?
-    let payment: PaymentModel?
-    let subtotal: Double?
-    let tax: Double?
-    let total: Double?
     private(set) var vendor: VendorModel?
-    let authorId: String?
-    let note: String?
+    private(set) var imageName: String?
     
     init(
-        receiptId: String,
-        category: String? = nil,
-        date: String? = nil,
-        invoiceNumber: String? = nil,
-        isDuplicate: Bool? = nil,
-        lineItems: [LineItemModel]? = nil,
-        payment: PaymentModel? = nil,
-        subtotal: Double? = nil,
-        tax: Double? = nil,
-        total: Double? = nil,
+        id: String,
+        userId: String,
+        category: CategoryModel,
+        date: Date,
+        invoiceNumber: String,
+        isDuplicate: Bool,
+        lineItems: [LineItemModel],
+        payment: PaymentModel,
+        subtotal: Float,
+        tax: Float,
+        total: Float,
+        note: String,
         vendor: VendorModel? = nil,
-        authorId: String? = nil,
-        note: String? = nil
+        imageName: String? = nil
     ) {
-        self.receiptId = receiptId
+        self.id = id
+        self.userId = userId
         self.category = category
         self.date = date
         self.invoiceNumber = invoiceNumber
@@ -52,35 +52,47 @@ struct ReceiptModel: Codable, StringIdentifiable {
         self.subtotal = subtotal
         self.tax = tax
         self.total = total
-        self.vendor = vendor
-        self.authorId = authorId
         self.note = note
+        self.vendor = vendor
+        self.imageName = imageName
     }
     
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.receiptId = UUID().uuidString
-        self.category = try values.decode(String.self, forKey: .category)
-        self.date = try values.decode(String.self, forKey: .date)
+        self.id = try values.decode(String.self, forKey: .id)
+        self.userId = try values.decode(String.self, forKey: .userId)
+        self.category = try values.decode(CategoryModel.self, forKey: .category)
+        self.date = try values.decode(Date.self, forKey: .date)
         self.invoiceNumber = try values.decode(String.self, forKey: .invoiceNumber)
         self.isDuplicate = try values.decode(Bool.self, forKey: .isDuplicate)
         self.lineItems = try values.decode([LineItemModel].self, forKey: .lineItems)
         self.payment = try values.decode(PaymentModel.self, forKey: .payment)
-        self.subtotal = try values.decode(Double.self, forKey: .subtotal)
-        self.tax = try values.decode(Double.self, forKey: .tax)
-        self.total = try values.decode(Double.self, forKey: .total)
+        self.subtotal = try values.decode(Float.self, forKey: .subtotal)
+        self.tax = try values.decode(Float.self, forKey: .tax)
+        self.total = try values.decode(Float.self, forKey: .total)
         self.vendor = try values.decode(VendorModel.self, forKey: .vendor)
-        self.authorId = nil
-        self.note = nil
+        self.note = try values.decode(String.self, forKey: .note)
+        self.imageName = try values.decode(String.self, forKey: .imageName)
     }
     
-    mutating func updateVendor(_ vendor: VendorModel) {
+    var dateText: String {
+        let readableDate = DateFormatterUtility.shared.string(from: date, format: .mediumDate)
+        let readableTime = DateFormatterUtility.shared.string(from: date, format: .timeOnly)
+        return "\(readableDate) • \(readableTime)"
+    }
+    
+    mutating func updateVendor(vendor: VendorModel) {
         self.vendor = vendor
     }
     
+    mutating func updateReceiptImage(imageName: String) {
+        self.imageName = imageName
+    }
+    
     enum CodingKeys: String, CodingKey {
-        case receiptId = "receipt_id"
+        case id = "receipt_id"
+        case userId = "user_id"
         case category
         case date
         case invoiceNumber = "invoice_number"
@@ -90,23 +102,9 @@ struct ReceiptModel: Codable, StringIdentifiable {
         case subtotal
         case tax
         case total
+        case note
         case vendor
-        case authorId = "author_id"
-        case note = "note"
-    }
-    
-    var categoryEnum: CategoryModel {
-        CategoryModel(rawValue: category ?? "") ?? .meal
-    }
-    
-    var dateText: String {
-        if let date = DateFormatterUtility.shared.date(from: date ?? "", format: .standard) {
-            let readableDate = DateFormatterUtility.shared.string(from: date, format: .mediumDate)
-            let readableTime = DateFormatterUtility.shared.string(from: date, format: .timeOnly)
-            return "\(readableDate) • \(readableTime)"
-        }
-        
-        return "N/A"
+        case imageName = "receipt_image"
     }
     
     static var mock: Self {
@@ -116,24 +114,27 @@ struct ReceiptModel: Codable, StringIdentifiable {
     static var mocks: [Self] {
         [
             ReceiptModel(
-                receiptId: "mock_receipt_1",
-                category: "Meal",
-                date: DateFormatterUtility.shared.string(from: .now, format: .standard),
+                id: "mock_receipt_1",
+                userId: UUID().uuidString,
+                category: .meal,
+                date: .now.addingTimeInterval(days: -14),
                 invoiceNumber: "123",
                 isDuplicate: false,
                 lineItems: LineItemModel.mocks,
                 payment: PaymentModel.mock,
-                subtotal: 32.67,
-                tax: 4.32,
-                total: 36.99,
-                vendor: VendorModel.mock,
-                authorId: UUID().uuidString
+                subtotal: 41.51,
+                tax: 3.10,
+                total: 44.61,
+                note: "Hello world...",
+                vendor: VendorModel(name: "Starbucks", logoURL: Constants.randomImageURL),
+                imageName: Constants.randomImageURL
             ),
             
             ReceiptModel(
-                receiptId: "mock_receipt_2",
-                category: "Transportation",
-                date: DateFormatterUtility.shared.string(from: .now, format: .standard),
+                id: "mock_receipt_2",
+                userId: UUID().uuidString,
+                category: .communication,
+                date: .now,
                 invoiceNumber: "456",
                 isDuplicate: false,
                 lineItems: LineItemModel.mocks,
@@ -141,25 +142,27 @@ struct ReceiptModel: Codable, StringIdentifiable {
                 subtotal: 46.32,
                 tax: 5.98,
                 total: 52.3,
-                vendor: VendorModel.mock,
-                authorId: UUID().uuidString
+                note: "Hello world...",
+                vendor: VendorModel(name: "Apple Store", logoURL: Constants.randomImageURL),
+                imageName: Constants.randomImageURL
             ),
             
             ReceiptModel(
-                receiptId: "mock_receipt_3",
-                category: "Hotel",
-                date: DateFormatterUtility.shared.string(from: .now, format: .standard),
+                id: "mock_receipt_3",
+                userId: UUID().uuidString,
+                category: .entertainment,
+                date: .now.addingTimeInterval(days: -7),
                 invoiceNumber: "789",
                 isDuplicate: false,
                 lineItems: LineItemModel.mocks,
                 payment: PaymentModel.mock,
-                subtotal: 41.51,
+                subtotal: 84.95,
                 tax: 3.10,
-                total: 44.61,
-                vendor: .mock,
-                authorId: UUID().uuidString
-            )
+                total: 86.25,
+                note: "Hello world...",
+                vendor: VendorModel(name: "Costco Wholesale", logoURL: Constants.randomImageURL),
+                imageName: Constants.randomImageURL
+            ),
         ]
     }
-    
 }

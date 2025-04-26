@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct LineItemModel: Identifiable, Codable, Equatable {
+struct LineItemModel: Identifiable, Hashable, Codable, Equatable {
     let id: Int
     var quantity: Int
     var description: String

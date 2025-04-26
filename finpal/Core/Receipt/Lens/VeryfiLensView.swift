@@ -7,17 +7,37 @@
 
 import SwiftUI
 
+extension Notification.Name {
+    static let VeryfiLensAnalyticsEvent = Notification.Name("VeryfiLensAnalyticsEvent")
+}
+
 struct VeryfiLensView: View {
-    private var lensManager = VeryfiLensManager()
+    @Bindable var tabBarState: TabBarState
+    
+    private var lensManager: VeryfiLensManager
     
     @State private var document: DocumentModel?
     
     @State private var isProcessing: Bool = true
     
-    init() {
+    @State private var isDocumentDetected = false
+//    lens_submit_document_detection_status
+    
+    init(tabBar: TabBarState) {
+        self._tabBarState = Bindable(tabBar)
+        self.lensManager = VeryfiLensManager(tabBarState: tabBar)
+        
         lensManager.configure()
         lensManager.showCamera()
     }
+    
+//    init(tabBarState: TabBarState) {
+//        self.tabBarState = tabBarState
+//        self.lensManager = VeryfiLensManager(tabBarState: tabBarState)
+//        
+//        lensManager.configure()
+//        lensManager.showCamera()
+//    }
     
     var body: some View {
         NavigationStack {
@@ -35,6 +55,13 @@ struct VeryfiLensView: View {
             }
             .onAppear {
                 lensManager.setDelegate(eventListener: eventListener)
+            }
+            .onDisappear {
+                lensManager.removeDelegate()
+            }
+            .onReceive(.VeryfiLensAnalyticsEvent) { notification in
+                print("[finpal - DEBUG] onReceive: \(notification)")
+                logLensEvent(from: notification)
             }
         }
     }
@@ -55,8 +82,39 @@ struct VeryfiLensView: View {
                 .tracking(2)
         }
     }
+    
+    private func logLensEvent(from notification: Notification) {
+        if let eventDict = notification.object as? [String: Any],
+           let eventName = eventDict["event"] as? String,
+           eventName == "lens_submit_document_detection_status" {
+            isDocumentDetected = true
+        }
+        
+        if let eventDict = notification.object as? [String: Any],
+           let eventName = eventDict["event"] as? String,
+           eventName == "lens_camera_close" {
+            if !isDocumentDetected {
+                tabBarState.dismissVeryfiLens()
+            }
+        }
+    }
+    
+}
+
+extension View {
+    
+    func onReceive(
+        _ name: Notification.Name,
+        center: NotificationCenter = .default,
+        object: AnyObject? = nil,
+        perform action: @escaping (Notification) -> Void) -> some View {
+            onReceive(
+                center.publisher(for: name, object: object),
+                perform: action
+            )
+    }
 }
 
 #Preview {
-    VeryfiLensView()
+    VeryfiLensView(tabBar: TabBarState())
 }

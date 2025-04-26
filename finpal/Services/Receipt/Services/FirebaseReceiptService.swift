@@ -14,17 +14,38 @@ struct FirebaseReceiptService: ReceiptService {
         Firestore.firestore().collection("receipts")
     }
     
-    func createNewReceipt(receipt: ReceiptModel, vendorName: String, vendorLogo: UIImage) async throws {
-        let photoName = UUID().uuidString
-        let path = "receipts/\(receipt.receiptId)/\(photoName)"
-        let url = try await FirebaseImageUploadService().uploadImage(image: vendorLogo, path: path)
+    func createNewReceipt(receipt: ReceiptModel, receiptImage: UIImage?, vendorName: String, vendorLogo: UIImage) async throws {
+        let vendorImageName = UUID().uuidString
+        let vendorImagePath = "receipts/\(receipt.id)/\(vendorImageName)"
+        let vendorImageURL = try await FirebaseImageUploadService().uploadImage(image: vendorLogo, path: vendorImagePath)
         
-        let vendor = VendorModel(name: vendorName, logoURL: url.absoluteString)
+        let vendor = VendorModel(name: vendorName, logoURL: vendorImageURL.absoluteString)
         
-        var receipt = receipt
-        receipt.updateVendor(vendor)
+        var saveReceipt = ReceiptModel(
+            id: receipt.id,
+            userId: receipt.userId,
+            category: receipt.category,
+            date: receipt.date,
+            invoiceNumber: receipt.invoiceNumber,
+            isDuplicate: receipt.isDuplicate,
+            lineItems: receipt.lineItems,
+            payment: receipt.payment,
+            subtotal: receipt.subtotal,
+            tax: receipt.tax,
+            total: receipt.total,
+            note: receipt.note,
+            vendor: vendor
+        )
         
-        try collection.document(receipt.receiptId).setData(from: receipt, merge: true)
+        if let receiptImage {
+            let receiptImageName = UUID().uuidString
+            let receiptImagePath = "receipts/\(receipt.id)/\(receiptImageName)"
+            let receiptImageURL = try await FirebaseImageUploadService().uploadImage(image: receiptImage, path: receiptImagePath)
+            
+            saveReceipt.updateReceiptImage(imageName: receiptImageURL.absoluteString)
+        }
+        
+        try collection.document(saveReceipt.id).setData(from: saveReceipt, merge: true)
     }
     
     func getReceipt(id: String) async throws -> ReceiptModel {
@@ -40,8 +61,8 @@ struct FirebaseReceiptService: ReceiptService {
     
     func getReceiptsForAuthor(userId: String) async throws -> [ReceiptModel] {
         try await collection
-            .whereField(ReceiptModel.CodingKeys.authorId.rawValue, isEqualTo: userId)
-            .limit(to: 200)
+            .whereField(ReceiptModel.CodingKeys.userId.rawValue, isEqualTo: userId)
+            .order(by: ReceiptModel.CodingKeys.date.rawValue, descending: true)
             .getAllDocuments()
     }
     

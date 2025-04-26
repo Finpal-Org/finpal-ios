@@ -9,8 +9,6 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Environment(AppState.self) private var root
-    @Environment(UserManager.self) private var userManager
-    @Environment(AuthenticationRouter.self) private var router
     
     @State private var currentIndex = 0
     
@@ -126,11 +124,7 @@ struct OnboardingView: View {
     }
     
     private func onFinishOnboarding() {
-        Task {
-//            try await userManager.markOnboardingCompleteForCurrentUser()
-            
-            root.updateViewState(.authentication)
-        }
+        root.updateViewState(showTabBar: true)
     }
 }
 

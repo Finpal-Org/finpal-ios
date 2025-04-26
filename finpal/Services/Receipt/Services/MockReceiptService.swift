@@ -24,7 +24,7 @@ struct MockReceiptService: ReceiptService {
         }
     }
     
-    func createNewReceipt(receipt: ReceiptModel, vendorName: String, vendorLogo: UIImage) async throws {
+    func createNewReceipt(receipt: ReceiptModel, receiptImage: UIImage?, vendorName: String, vendorLogo: UIImage) async throws {
         try await Task.sleep(for: .seconds(delay))
         try tryShowError()
     }

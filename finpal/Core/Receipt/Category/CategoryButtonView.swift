@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CategoryButtonView: View {
-    @Binding var selectedCategory: CategoryModel?
+    @Binding var selectedCategory: CategoryModel
     
     @State private var isCategorySheetPresented: Bool = false
     
@@ -28,7 +28,7 @@ struct CategoryButtonView: View {
                                 .frame(width: 40, height: 40)
                                 .foregroundStyle(Color.gray5)
                             
-                            Image(systemName: selectedCategory?.iconName ?? "questionmark")
+                            Image(systemName: selectedCategory.iconName)
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundStyle(Color.gray60)
                         }
@@ -41,7 +41,7 @@ struct CategoryButtonView: View {
                         Spacer()
                         
                         // Selected Category
-                        Text(selectedCategory?.rawValue ?? "Not Set")
+                        Text(selectedCategory.rawValue)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(Color.gray80)
                         
@@ -64,7 +64,7 @@ struct CategoryButtonView: View {
 }
 
 #Preview {
-    @Previewable @State var selectedCategory: CategoryModel?
+    @Previewable @State var selectedCategory: CategoryModel = .communication
     
     CategoryButtonView(selectedCategory: $selectedCategory)
 }

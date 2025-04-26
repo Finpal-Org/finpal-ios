@@ -15,8 +15,13 @@ import SwiftUI
         self.service = service
     }
     
-    func createNewReceipt(receipt: ReceiptModel, vendorName: String, vendorLogo: UIImage) async throws {
-        try await service.createNewReceipt(receipt: receipt, vendorName: vendorName, vendorLogo: vendorLogo)
+    func createNewReceipt(receipt: ReceiptModel, receiptImage: UIImage?, vendorName: String, vendorLogo: UIImage) async throws {
+        try await service.createNewReceipt(
+            receipt: receipt,
+            receiptImage: receiptImage,
+            vendorName: vendorName,
+            vendorLogo: vendorLogo
+        )
     }
     
     func getReceipt(id: String) async throws -> ReceiptModel {

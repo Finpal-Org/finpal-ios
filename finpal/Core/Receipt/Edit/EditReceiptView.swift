@@ -240,7 +240,7 @@ struct EditReceiptView: View {
         self.invoiceNumber = viewModel.invoiceNumber
         self.vendorImage = viewModel.vendorImage
         self.vendorName = viewModel.vendorName
-        self.receiptDate = viewModel.date ?? .now
+        self.receiptDate = viewModel.date
         self.lineItems = viewModel.lineItems
     }
     

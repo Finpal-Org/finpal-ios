@@ -67,4 +67,51 @@ extension View {
                 text.wrappedValue = String(text.wrappedValue.prefix(characterLimit))
             }
     }
+    
+    func withRouter() -> some View {
+        modifier(RouterViewModifier())
+    }
+    
+    func signOutAlert(isPresented: Binding<Bool>, onConfirm: @escaping () -> Void) -> some View {
+        alert(
+            "Are you sure you want to sign out?",
+            isPresented: isPresented,
+            actions: {
+                Button("Cancel", role: .cancel) {
+                    
+                }
+                
+                Button("Sign Out", role: .destructive) {
+                    onConfirm()
+                }
+            },
+            message: {
+                Text("You will be signed out of your account. Any unsaved changes may be lost.")
+            }
+        )
+    }
+    
+    func deleteAlert(isPresented: Binding<Bool>, deleteText: Binding<String>, onConfirm: @escaping () -> Void) -> some View {
+        alert(
+            "Are you sure you want to delete your account?",
+            isPresented: isPresented,
+            actions: {
+                TextField("DELETE", text: deleteText)
+                
+                Button("Cancel", role: .cancel) {
+                    
+                }
+                
+                Button("Delete", role: .destructive) {
+                    if deleteText.wrappedValue == "DELETE" {
+                        onConfirm()
+                    }
+                }
+            },
+            message: {
+                Text("This action is permanent and cannot be undone. To confirm, please type DELETE in the field below.")
+            }
+        )
+    }
+    
 }

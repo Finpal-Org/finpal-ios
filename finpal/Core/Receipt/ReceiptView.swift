@@ -11,7 +11,7 @@ struct ReceiptView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthManager.self) private var authManager
     @Environment(ReceiptManager.self) private var receiptManager
-    @Environment(TabBarViewModel.self) private var tabBar
+    @Environment(TabBarState.self) private var tabBar
     
     @State private var viewModel: ReceiptViewModel
     
@@ -24,7 +24,7 @@ struct ReceiptView: View {
     @State private var showSaveError = false
     @State private var showSaveResult = false
     
-    init(scannedReceipt: ReceiptModel) {
+    init(scannedReceipt: ScannedReceiptModel) {
         self.viewModel = ReceiptViewModel(scannedReceipt: scannedReceipt)
     }
     
@@ -138,7 +138,7 @@ struct ReceiptView: View {
                         return
                     }
                     
-                    try await viewModel.loadImageFromURL(from: vendorLogo)
+                    try await viewModel.loadVendorImageFromURL(from: vendorLogo)
                 }
                 
                 guard let vendorImage = viewModel.vendorImage else {
@@ -146,6 +146,12 @@ struct ReceiptView: View {
                     errorMessage = "Please set the vendor image before saving the receipt."
                     showPopup = true
                     return
+                }
+                
+                if viewModel.imageURL != nil {
+                    print("[finpal - DEBUG] Saving receipt image from URL...")
+                    try await viewModel.loadImageFromURL()
+                    print("[finpal - DEBUG] Converted URL to UIImage")
                 }
                 
                 let uid = try authManager.getAuthId()
@@ -157,9 +163,10 @@ struct ReceiptView: View {
                 )
                 
                 let receipt = ReceiptModel(
-                    receiptId: UUID().uuidString,
-                    category: viewModel.category?.rawValue,
-                    date: viewModel.date?.description,
+                    id: UUID().uuidString,
+                    userId: uid,
+                    category: viewModel.category,
+                    date: viewModel.date,
                     invoiceNumber: viewModel.invoiceNumber,
                     isDuplicate: false,
                     lineItems: viewModel.lineItems,
@@ -167,13 +174,14 @@ struct ReceiptView: View {
                     subtotal: viewModel.subtotal,
                     tax: viewModel.tax,
                     total: viewModel.total,
+                    note: noteText,
                     vendor: nil,
-                    authorId: uid,
-                    note: noteText
+                    imageName: nil
                 )
                 
                 try await receiptManager.createNewReceipt(
                     receipt: receipt,
+                    receiptImage: viewModel.receiptImage,
                     vendorName: viewModel.vendorName,
                     vendorLogo: vendorImage
                 )
@@ -186,9 +194,7 @@ struct ReceiptView: View {
                 
                 try await Task.sleep(for: .seconds(1))
                 
-                tabBar.showLens = false
-                tabBar.updateCurrentTab(.receipts)
-                
+                tabBar.dismissVeryfiLens()
             } catch {
                 print("[finpal - ERROR] Could not save a receipt. \(error.localizedDescription)")
                 showSaveResult = false

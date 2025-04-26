@@ -8,7 +8,7 @@
 import SwiftUI
 
 protocol ReceiptService: Sendable {
-    func createNewReceipt(receipt: ReceiptModel, vendorName: String, vendorLogo: UIImage) async throws
+    func createNewReceipt(receipt: ReceiptModel, receiptImage: UIImage?, vendorName: String, vendorLogo: UIImage) async throws
     func getReceipt(id: String) async throws -> ReceiptModel
     func getReceiptsForCategory(category: CategoryModel) async throws -> [ReceiptModel]
     func getReceiptsForAuthor(userId: String) async throws -> [ReceiptModel]

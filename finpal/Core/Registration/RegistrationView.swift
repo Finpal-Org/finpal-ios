@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct RegistrationView: View {
-    @Environment(AuthenticationRouter.self) private var router
+    @Environment(\.dismiss) private var dismiss
+    
+    @Binding var path: [NavigationPathOption]
     
     @State private var viewModel = RegistrationViewModel()
     
@@ -31,7 +33,9 @@ struct RegistrationView: View {
         .padding(.horizontal)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray5)
-        .errorPopup(showingPopup: $viewModel.showPopup, viewModel.errorMessage)
+        .errorPopup(showingPopup: $viewModel.showPopup, viewModel.errorMessage) {
+            viewModel.clearErrors()
+        }
     }
     
     private var titleView: some View {
@@ -109,7 +113,7 @@ struct RegistrationView: View {
                 .foregroundStyle(.accent)
                 .underline()
                 .anyButton {
-                    router.navigateToLogin()
+                    onLoginButtonPressed()
                 }
         }
     }
@@ -118,7 +122,12 @@ struct RegistrationView: View {
         do {
             try viewModel.validateForm()
             
-            router.navigateToSetup(email: viewModel.email, password: viewModel.password)
+            path.append(.setup(email: viewModel.email, password: viewModel.password))
+            
+//            router.navigateToSetup(
+//                email: viewModel.email,
+//                password: viewModel.password
+//            )
         } catch let error as AppAuthError {
             viewModel.showPopup = true
             viewModel.errorMessage = error.localizedDescription
@@ -127,9 +136,14 @@ struct RegistrationView: View {
             viewModel.errorMessage = error.localizedDescription
         }
     }
+    
+    private func onLoginButtonPressed() {
+        viewModel.clearErrors()
+        dismiss()
+    }
 }
 
 #Preview {
-    RegistrationView()
-        .withRouter()
+    @Previewable @State var path: [NavigationPathOption] = []
+    RegistrationView(path: $path)
 }

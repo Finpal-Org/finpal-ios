@@ -21,8 +21,11 @@ class RegistrationViewModel {
     var showPopup = false
     var errorMessage = ""
     
-    func createUser() {
-        
+    func clearErrors() {
+        showEmailError = false
+        showPasswordError = false
+        showConfirmPasswordError = false
+        showPopup = false
     }
     
     func validateForm() throws {

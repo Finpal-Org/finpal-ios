@@ -7,70 +7,49 @@
 
 import SwiftUI
 
-struct AppViewBuilder<TabBarView: View, AuthView: View, OnboardingView: View>: View {
-    let viewState: AppState.ViewState
+struct AppViewBuilder<TabBarView: View, OnboardingView: View>: View {
+    var showTabBar = false
     
     @ViewBuilder var tabBar: TabBarView
-    @ViewBuilder var auth: AuthView
     @ViewBuilder var onboarding: OnboardingView
     
     var body: some View {
         ZStack {
-            switch viewState {
-            case .onboarding:
-                onboarding
-                    .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .trailing)))
-            case .authentication:
-                auth
-                    .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
-            case .tabBar:
+            if showTabBar {
                 tabBar
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
+                    .transition(.move(edge: .trailing))
+            } else {
+                onboarding
+                    .transition(.move(edge: .leading))
             }
         }
-        .animation(.smooth, value: viewState)
+        .animation(.smooth, value: showTabBar)
     }
 }
 
 private struct PreviewView: View {
-    @State private var appState = AppState()
+    @State private var showTabBar = false
     
     var body: some View {
         AppViewBuilder(
-            viewState: appState.viewState,
+            showTabBar: showTabBar,
             tabBar: {
                 ZStack {
                     Color.red.ignoresSafeArea()
                     
                     Text("TabBar")
                 }
-                .onTapGesture {
-                    appState.updateViewState(.authentication)
-                }
-            },
-            auth: {
-                ZStack {
-                    Color.blue.ignoresSafeArea()
-                    
-                    Text("Authentication")
-                }
-                .onTapGesture {
-                    appState.updateViewState(.tabBar)
-                }
             },
             onboarding: {
                 ZStack {
-                    Color.green.ignoresSafeArea()
+                    Color.blue.ignoresSafeArea()
                     
                     Text("Onboarding")
                 }
-                .onTapGesture {
-                    appState.updateViewState(.authentication)
-                }
             }
         )
-        .onAppear {
-            appState.updateViewState(.onboarding)
+        .onTapGesture {
+            showTabBar.toggle()
         }
     }
 }

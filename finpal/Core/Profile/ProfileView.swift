@@ -8,47 +8,62 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(AppState.self) private var appState
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
-    @Environment(AppState.self) private var appState
     
     @State private var currentUser: UserModel?
     
     @State private var showPopup = false
     @State private var errorMessage = ""
     
+    @State private var isSignOutAlertPresented = false
+    @State private var isDeleteAlertPresented = false
+    @State private var deleteAlertText = ""
+    
+    @State private var path: [ProfileRouter] = []
+    
     var body: some View {
-        ScrollView {
-            VStack {
-                StickyHeaderView(currentUser: currentUser)
-                
-                VStack(spacing: 32) {
-                    generalSettingsView
+        NavigationStack(path: $path) {
+            ScrollView {
+                VStack {
+                    StickyHeaderView(currentUser: currentUser)
                     
-                    Divider()
-                        .padding(.horizontal)
+                    VStack(spacing: 32) {
+                        generalSettingsView
+                        
+                        Divider()
+                            .padding(.horizontal)
+                        
+                        notificationsSettingsView
+                        
+                        Divider()
+                            .padding(.horizontal)
+                        
+                        securitySettingsView
+                        
+                        Divider()
+                            .padding(.horizontal)
+                        
+                        dangerZoneSectionView
+                        signOutButton
+                    }
                     
-                    notificationsSettingsView
-                    
-                    Divider()
-                        .padding(.horizontal)
-                    
-                    securitySettingsView
-                    
-                    Divider()
-                        .padding(.horizontal)
-                    
-                    dangerZoneSectionView
-                    signOutButton
                 }
-                
             }
-        }
-        .ignoresSafeArea()
-        .background(Color.gray5)
-        .errorPopup(showingPopup: $showPopup, errorMessage)
-        .task {
-            await loadData()
+            .withProfileRouter(path: $path)
+            .ignoresSafeArea()
+            .background(Color.gray5)
+            .errorPopup(showingPopup: $showPopup, errorMessage)
+            .signOutAlert(isPresented: $isSignOutAlertPresented) {
+                onSignOutConfirmedPressed()
+            }
+            .deleteAlert(isPresented: $isDeleteAlertPresented, deleteText: $deleteAlertText) {
+                onDeleteAccountConfirmedPressed()
+            }
+            .task {
+                await loadData()
+            }
         }
     }
     
@@ -65,19 +80,19 @@ struct ProfileView: View {
             
             VStack(spacing: 8) {
                 ProfileSettingsItemView(setting: .profileInfo) {
-                    
+                    onProfileSettingsPressed()
                 }
                 
                 ProfileSettingsItemView(setting: .displayAppearance) {
-                    
+                    onAppearanceModePressed()
                 }
                 
                 ProfileSettingsItemView(setting: .exportData) {
-                    
+                    onExportDataButtonPressed()
                 }
                 
                 ProfileSettingsItemView(setting: .aboutUs) {
-                    
+                    onAboutUsButtonPressed()
                 }
             }
         }
@@ -90,9 +105,35 @@ struct ProfileView: View {
                 .foregroundStyle(Color.gray80)
                 .padding(.leading)
             
-            ProfileSettingsItemView(setting: .pushNotification) {
+            HStack {
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .frame(width: 40, height: 40)
+                            .foregroundStyle(Color.gray5)
+                        
+                        Image(systemName: "bell")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(Color.gray60)
+                    }
+                    
+                    Text("Push Notification")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.gray80)
+                }
                 
+                Spacer()
+                
+                Toggle("", isOn: .constant(true))
             }
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity)
+            .frame(height: 64)
+            .background(Color.white, in: .rect(cornerRadius: 20))
+            .padding(.horizontal, 16)
+            .mediumShadow()
         }
     }
     
@@ -150,19 +191,38 @@ struct ProfileView: View {
             
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 60)
-        .padding(.bottom, 40)
+        .frame(height: 75)
+        .padding(.bottom, 90)
+    }
+    
+    private func onProfileSettingsPressed() {
+        path.append(.profileInfo)
+    }
+    
+    private func onAppearanceModePressed() {
+        path.append(.profileAppearance)
+    }
+    
+    private func onExportDataButtonPressed() {
+        path.append(.profileExport)
+    }
+    
+    private func onAboutUsButtonPressed() {
+        path.append(.profileAbout)
     }
     
     private func onDeleteAccountPressed() {
+        isDeleteAlertPresented.toggle()
+    }
+    
+    private func onDeleteAccountConfirmedPressed() {
         Task {
             do {
-                async let deleteAuth: () = authManager.deleteAccount()
-                async let deleteUser: () = userManager.deleteCurrentUser()
                 
-                let (_, _) = await (try deleteAuth, try deleteUser)
+                try await userManager.deleteCurrentUser()
+                try await authManager.deleteAccount()
                 
-                await dismissScreen()
+                appState.showAuthScreen(showAuth: true)
             } catch {
                 errorMessage = "Failed to delete your account. Please try again later."
                 showPopup = true
@@ -171,22 +231,21 @@ struct ProfileView: View {
     }
     
     private func onSignOutPressed() {
+        isSignOutAlertPresented.toggle()
+    }
+    
+    private func onSignOutConfirmedPressed() {
         Task {
             do {
                 try authManager.signOut()
                 userManager.signOut()
                 
-                await dismissScreen()
+                appState.showAuthScreen(showAuth: true)
             } catch {
                 errorMessage = "Sign out failed. Please try again."
                 showPopup = true
             }
         }
-    }
-    
-    private func dismissScreen() async {
-        try? await Task.sleep(for: .seconds(1))
-        appState.updateViewState(.authentication)
     }
 }
 

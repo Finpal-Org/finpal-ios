@@ -8,52 +8,61 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Environment(AuthenticationRouter.self) private var router
+    @Environment(AuthManager.self) private var authManager
+    @Environment(UserManager.self) private var userManager
     
-    @State private var viewModel = SignInViewModel()
+    @State private var viewModel = LoginViewModel()
     
     @State private var rememberMe: Bool = true
     
     @State private var isForgotPasswordPresented: Bool = false
+    @State private var isLoggingIn = false
+    
+    @State private var path: [NavigationPathOption] = []
     
     var body: some View {
-        VStack {
-            VStack(spacing: 40) {
-                // Logo and Title
-                VStack(spacing: 24) {
-                    Image(.logoPlain)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 94, height: 94)
+        NavigationStack(path: $path) {
+            VStack {
+                VStack(spacing: 40) {
+                    // Logo and Title
+                    VStack(spacing: 24) {
+                        Image(.logoPlain)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 94, height: 94)
+                        
+                        Text("Sign In to finpal")
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundStyle(Color.gray80)
+                    }
                     
-                    Text("Sign In to finpal")
-                        .font(.system(size: 30, weight: .bold))
-                        .foregroundStyle(Color.gray80)
+                    // Fields
+                    VStack(spacing: 24) {
+                        emailAddressField
+                        passwordField
+                        rememberMeButton
+                    }
+                    
+                    // Buttons
+                    VStack(spacing: 12) {
+                        signInButton
+                        createNewAccountButton
+                    }
+                    
+                    forgotPasswordButton
                 }
-                
-                // Fields
-                VStack(spacing: 24) {
-                    emailAddressField
-                    passwordField
-                    rememberMeButton
-                }
-                
-                // Buttons
-                VStack(spacing: 12) {
-                    signInButton
-                    createNewAccountButton
-                }
-                
-                forgotPasswordButton
+                .padding()
             }
-            .padding()
+            .navigationDestinationForCoreModule(path: $path)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.gray5)
+            .fullScreenCover(isPresented: $isForgotPasswordPresented) {
+                ForgotPasswordView()
+            }
+            .errorPopup(showingPopup: $viewModel.showPopup, viewModel.errorMessage) {
+                viewModel.clearErrors()
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.gray5)
-        .fullScreenCover(isPresented: $isForgotPasswordPresented) {
-            ForgotPasswordView()
-        }
-        .errorPopup(showingPopup: $viewModel.errorAlert.isPresented, viewModel.errorAlert.message)
     }
     
     private var emailAddressField: some View {
@@ -66,7 +75,7 @@ struct LoginView: View {
                 "Enter your email address...",
                 iconName: "envelope",
                 keyboardType: .emailAddress,
-                error: $viewModel.errorAlert.isPresented,
+                error: $viewModel.showEmailError,
                 text: $viewModel.email
             )
         }
@@ -81,7 +90,7 @@ struct LoginView: View {
             InputPasswordView(
                 "Enter your password...",
                 iconName: "lock",
-                showError: $viewModel.errorAlert.isPresented,
+                showError: $viewModel.showPasswordError,
                 text: $viewModel.password
             )
         }
@@ -106,18 +115,20 @@ struct LoginView: View {
     
     private var signInButton: some View {
         AsyncCallToActionButton(
-            isLoading: viewModel.isLoading,
+            isLoading: isLoggingIn,
             title: "Sign In",
             action: onSignInButtonPressed
         )
     }
     
     private var createNewAccountButton: some View {
-        Text("Create New Account")
-            .secondaryButton()
-            .anyButton(.press) {
-                onCreateAccountButtonPressed()
-            }
+        NavigationLink {
+            RegistrationView(path: $path)
+                .navigationBarBackButtonHidden()
+        } label: {
+            Text("Create New Account")
+                .secondaryButton()
+        }
     }
     
     private var forgotPasswordButton: some View {
@@ -132,11 +143,24 @@ struct LoginView: View {
     }
     
     private func onSignInButtonPressed() {
-        viewModel.signIn()
-    }
-    
-    private func onCreateAccountButtonPressed() {
-        router.navigateToSignUp()
+        isLoggingIn = true
+        
+        Task {
+            do {
+                try viewModel.validateForm()
+                
+                let result = try await authManager.signIn(withEmail: viewModel.email, password: viewModel.password)
+                try await userManager.fetchUser(auth: result)
+            } catch let error as AppAuthError {
+                viewModel.showPopup = true
+                viewModel.errorMessage = error.localizedDescription
+            } catch {
+                viewModel.showPopup = true
+                viewModel.errorMessage = error.localizedDescription
+            }
+            
+            isLoggingIn = false
+        }
     }
     
     private func onForgotPasswordPressed() {
@@ -146,5 +170,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
-        .withRouter()
+        .previewEnvironment()
 }
