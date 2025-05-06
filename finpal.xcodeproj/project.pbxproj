@@ -19,6 +19,7 @@
 		83BBF3572DA1CF3E000DCB15 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3562DA1CF3E000DCB15 /* FirebaseFirestore */; };
 		83BBF3592DA1CF3E000DCB15 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 83BBF3582DA1CF3E000DCB15 /* FirebaseStorage */; };
 		83C567062D5A30C000D9D58B /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 83C567052D5A30C000D9D58B /* SDWebImageSwiftUI */; };
+		83EC52632DC6FFFF007CC68C /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = 83EC52622DC6FFFF007CC68C /* SwiftUICharts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,9 +27,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		8369918C2D68C67D00188FC8 /* Exceptions for "finpal" folder in "finpal" target */ = {
+		83B2C98A2DBDA7D900BD1359 /* Exceptions for "finpal" folder in "finpal" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Config.xcconfig,
 				Info.plist,
 			);
 			target = 8313641C2D54129F00D6FA07 /* finpal */;
@@ -39,7 +41,7 @@
 		8313641F2D54129F00D6FA07 /* finpal */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				8369918C2D68C67D00188FC8 /* Exceptions for "finpal" folder in "finpal" target */,
+				83B2C98A2DBDA7D900BD1359 /* Exceptions for "finpal" folder in "finpal" target */,
 			);
 			path = finpal;
 			sourceTree = "<group>";
@@ -53,6 +55,7 @@
 			files = (
 				83BBF3352DA17CC4000DCB15 /* PopupView in Frameworks */,
 				83C567062D5A30C000D9D58B /* SDWebImageSwiftUI in Frameworks */,
+				83EC52632DC6FFFF007CC68C /* SwiftUICharts in Frameworks */,
 				83BBF3592DA1CF3E000DCB15 /* FirebaseStorage in Frameworks */,
 				836296762D944EE8008F0858 /* ShuffleIt in Frameworks */,
 				83759D272DAC68FD00050D97 /* VeryfiLens in Frameworks */,
@@ -125,6 +128,7 @@
 				8345F2E22DA32232008DA10D /* SwiftfulFirestore */,
 				83759D262DAC68FD00050D97 /* VeryfiLens */,
 				83B2C9612DBD355E00BD1359 /* OpenAI */,
+				83EC52622DC6FFFF007CC68C /* SwiftUICharts */,
 			);
 			productName = finpal;
 			productReference = 8313641D2D54129F00D6FA07 /* finpal.app */;
@@ -138,7 +142,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					8313641C2D54129F00D6FA07 = {
 						CreatedOnToolsVersion = 16.2;
@@ -163,6 +167,7 @@
 				8345F2E12DA32232008DA10D /* XCRemoteSwiftPackageReference "SwiftfulFirestore" */,
 				83759D252DAC68FD00050D97 /* XCRemoteSwiftPackageReference "veryfi-lens-spm" */,
 				83B2C9602DBD355E00BD1359 /* XCRemoteSwiftPackageReference "OpenAI" */,
+				83EC52612DC6FFFF007CC68C /* XCRemoteSwiftPackageReference "ChartView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8313641E2D54129F00D6FA07 /* Products */;
@@ -230,6 +235,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 978K845C66;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -293,6 +299,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 978K845C66;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -322,7 +329,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"finpal/Preview Content\"";
-				DEVELOPMENT_TEAM = 978K845C66;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = finpal/Info.plist;
@@ -363,7 +369,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"finpal/Preview Content\"";
-				DEVELOPMENT_TEAM = 978K845C66;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = finpal/Info.plist;
@@ -484,6 +489,14 @@
 				minimumVersion = 3.1.3;
 			};
 		};
+		83EC52612DC6FFFF007CC68C /* XCRemoteSwiftPackageReference "ChartView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AppPear/ChartView.git";
+			requirement = {
+				kind = exactVersion;
+				version = "2.0.0-beta.2";
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -546,6 +559,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 83C567042D5A30C000D9D58B /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
+		};
+		83EC52622DC6FFFF007CC68C /* SwiftUICharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83EC52612DC6FFFF007CC68C /* XCRemoteSwiftPackageReference "ChartView" */;
+			productName = SwiftUICharts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

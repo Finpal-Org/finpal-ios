@@ -124,6 +124,7 @@ struct OnboardingView: View {
     }
     
     private func onFinishOnboarding() {
+        root.showAuthScreen(showAuth: true)
         root.updateViewState(showTabBar: true)
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 enum NavigationPathOption: Hashable {
     case setup(email: String, password: String)
     case receipt(receipt: ReceiptModel)
+    case chatbotSettings
     case profileSettings
     case exportData
 }
@@ -24,6 +25,8 @@ extension View {
                     ProfileSetupView(email: email, password: password)
                 case .receipt(receipt: let receipt):
                     ReceiptDetailsView(receipt: receipt)
+                case .chatbotSettings:
+                    ChatbotSettings()
                 case .profileSettings:
                     ProfileSettingsView()
                 case .exportData:

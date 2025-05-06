@@ -30,14 +30,6 @@ import Observation
     func navigateToTabBar() {
         path.append(Route.tabBar)
     }
-    
-    func navigateToReceiptDetails(receipt: ReceiptModel) {
-        path.append(Route.receiptDetails(receipt: receipt))
-    }
-    
-    func navigateToExportData() {
-        path.append(Route.exportData)
-    }
 }
 
 enum Route: Hashable {
@@ -46,6 +38,4 @@ enum Route: Hashable {
     case register
     case setup(email: String, password: String)
     case tabBar
-    case receiptDetails(receipt: ReceiptModel)
-    case exportData
 }

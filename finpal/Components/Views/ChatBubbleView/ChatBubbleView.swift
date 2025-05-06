@@ -11,7 +11,6 @@ struct ChatBubbleView: View {
     var text: String = "This is a sample text."
     var textColor: Color = .primary
     var showImage: Bool = true
-    var imageName: String?
     var onImagePressed: (() -> Void)?
     
     let offset: CGFloat = 14
@@ -20,19 +19,14 @@ struct ChatBubbleView: View {
         HStack(alignment: .top, spacing: 8) {
             if showImage {
                 ZStack {
-                    if let imageName {
-                        ImageLoaderView(urlString: imageName)
-                            .anyButton {
-                                onImagePressed?()
-                            }
-                    } else {
-                        Rectangle()
-                            .fill(.secondary)
-                    }
+                    Circle()
+                        .foregroundStyle(.white)
+                    
+                    Image(.finpalChatbotRobot)
+                        .font(.system(size: 20))
                 }
                 .frame(width: 40, height: 40)
                 .clipShape(.circle)
-//                .offset(y: offset)
             }
             
             if showImage {

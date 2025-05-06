@@ -24,8 +24,8 @@ struct BarChartView: View {
                 .annotation(position: .top) {
                     if data.amount != 0 {
                         Text("SAR \(data.amount.trimmedDecimalString)")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(Color.gray80)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.gray60)
                     }
                 }
             }
@@ -70,13 +70,9 @@ struct BarChartView: View {
 }
 
 #Preview {
-    VStack {
+    ZStack {
+        Color.gray5.ignoresSafeArea()
+        
         BarChartView()
     }
-    .frame(maxWidth: .infinity)
-    .frame(height: 164)
-    .padding(16)
-    .background(Color.white, in: .rect(cornerRadius: 24))
-    .padding(.horizontal, 16)
-    .mediumShadow()
 }

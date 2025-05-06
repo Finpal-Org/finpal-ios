@@ -78,7 +78,7 @@ struct ChatMessageModel: Identifiable, Codable, StringIdentifiable {
             ChatMessageModel(
                 id: "msg2",
                 chatId: "2",
-                authorId: UUID().uuidString,
+                authorId: Constants.avatarId,
                 content: AIChatModel(role: .assistant, content: "I'm doing well, thanks for asking!"),
                 dateCreated: now.addingTimeInterval(minutes: -5)
             ),
@@ -92,7 +92,7 @@ struct ChatMessageModel: Identifiable, Codable, StringIdentifiable {
             ChatMessageModel(
                 id: "msg4",
                 chatId: "1",
-                authorId: UUID().uuidString,
+                authorId: Constants.avatarId,
                 content: AIChatModel(role: .assistant, content: "Sure, count me in!"),
                 dateCreated: now.addingTimeInterval(hours: -2, minutes: -15)
             )

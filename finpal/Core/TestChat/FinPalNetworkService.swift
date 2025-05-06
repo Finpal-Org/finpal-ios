@@ -11,7 +11,7 @@ import Foundation
  * FinPalNetworkService - API client to connect to our Python backend with MCP tool support
  * This service handles all communication with the AI backend server.
  */
-final class FinPalNetworkService: @unchecked Sendable {
+class FinPalNetworkService: @unchecked Sendable {
     // MARK: - Properties
     
     /// The base URL for the API

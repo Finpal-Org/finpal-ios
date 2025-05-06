@@ -9,8 +9,7 @@ import SwiftUI
 
 struct RegistrationView: View {
     @Environment(\.dismiss) private var dismiss
-    
-    @Binding var path: [NavigationPathOption]
+    @Environment(Router.self) private var router
     
     @State private var viewModel = RegistrationViewModel()
     
@@ -122,12 +121,7 @@ struct RegistrationView: View {
         do {
             try viewModel.validateForm()
             
-            path.append(.setup(email: viewModel.email, password: viewModel.password))
-            
-//            router.navigateToSetup(
-//                email: viewModel.email,
-//                password: viewModel.password
-//            )
+            router.navigateToSetup(email: viewModel.email, password: viewModel.password)
         } catch let error as AppAuthError {
             viewModel.showPopup = true
             viewModel.errorMessage = error.localizedDescription
@@ -144,6 +138,6 @@ struct RegistrationView: View {
 }
 
 #Preview {
-    @Previewable @State var path: [NavigationPathOption] = []
-    RegistrationView(path: $path)
+    RegistrationView()
+        .previewEnvironment()
 }

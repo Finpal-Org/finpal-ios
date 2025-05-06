@@ -58,23 +58,15 @@ struct TabBarView: View {
                     }
                     
                     HStack(spacing: 32) {
-                        TabBarItem(selectedTab: $selectedTab, tab: .home) {
-                            selectedTab = .home
-                        }
+                        TabBarItem(selectedTab: $selectedTab, navigateToChatbot: $navigateToChatbot, tab: .home)
                         
-                        TabBarItem(selectedTab: $selectedTab, tab: .receipts) {
-                            selectedTab = .receipts
-                        }
+                        TabBarItem(selectedTab: $selectedTab, navigateToChatbot: $navigateToChatbot, tab: .receipts)
                         
                         plusItemView
                         
-                        TabBarItem(selectedTab: $selectedTab, tab: .chatbot) {
-                            navigateToChatbot = true
-                        }
+                        TabBarItem(selectedTab: $selectedTab, navigateToChatbot: $navigateToChatbot, tab: .chatbot)
                         
-                        TabBarItem(selectedTab: $selectedTab, tab: .profile) {
-                            selectedTab = .profile
-                        }
+                        TabBarItem(selectedTab: $selectedTab, navigateToChatbot: $navigateToChatbot, tab: .profile)
                     }
                     .frame(maxWidth: .infinity)
                     .background(Color.white)
@@ -109,9 +101,9 @@ struct TabBarView: View {
 
 struct TabBarItem: View {
     @Binding var selectedTab: TabSelection
+    @Binding var navigateToChatbot: Bool
     
     var tab: TabSelection
-    var onTap: () -> Void
     
     var body: some View {
         VStack(spacing: 6) {
@@ -128,7 +120,11 @@ struct TabBarItem: View {
         }
         .padding(.top, 12)
         .onTapGesture {
-            onTap()
+            if tab != .chatbot {
+                selectedTab = tab
+            } else {
+                navigateToChatbot = true
+            }
         }
     }
 }

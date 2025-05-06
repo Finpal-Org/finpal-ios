@@ -10,7 +10,6 @@ import SwiftUI
 struct ChatBubbleViewBuilder: View {
     var message: ChatMessageModel = .mock
     var isCurrentUser: Bool = false
-    var imageName: String?
     var onImagePressed: (() -> Void)?
     
     var body: some View {
@@ -18,7 +17,6 @@ struct ChatBubbleViewBuilder: View {
             text: message.content?.message ?? "",
             textColor: isCurrentUser ? .white : Color.gray80,
             showImage: !isCurrentUser,
-            imageName: imageName,
             onImagePressed: onImagePressed
         )
         .frame(maxWidth: .infinity, alignment: isCurrentUser ? .trailing : .leading)

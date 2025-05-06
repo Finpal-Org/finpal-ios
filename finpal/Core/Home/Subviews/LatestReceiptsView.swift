@@ -53,7 +53,7 @@ struct LatestReceiptsView: View {
             
         }
         .frame(maxWidth: .infinity)
-        .offset(x: 0, y: -30)
+        .offset(x: 0, y: -64)
     }
 }
 

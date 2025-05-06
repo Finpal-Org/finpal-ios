@@ -20,10 +20,14 @@ struct OpenAIService: AIService {
         OpenAI(apiToken: Keys.openAIKey)
     }
     
+    let functions = AIAssistantFunctionTools()
+    
     func generateText(chats: [AIChatModel]) async throws -> AIChatModel {
         let messages = chats.compactMap({ $0.toOpenAIModel() })
-        let query = ChatQuery(messages: messages, model: .gpt4_o)
+        let query = ChatQuery(messages: messages, model: .gpt4_o, tools: [functions.getListFunction()])
+        
         let result = try await openAI.chats(query: query)
+        print("[finpal - DEBUG] result: \(result)")
         
         guard
             let chat = result.choices.first?.message,

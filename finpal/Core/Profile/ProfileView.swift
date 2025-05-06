@@ -21,49 +21,44 @@ struct ProfileView: View {
     @State private var isDeleteAlertPresented = false
     @State private var deleteAlertText = ""
     
-    @State private var path: [ProfileRouter] = []
-    
     var body: some View {
-        NavigationStack(path: $path) {
-            ScrollView {
-                VStack {
-                    StickyHeaderView(currentUser: currentUser)
+        ScrollView {
+            VStack {
+                StickyHeaderView(currentUser: currentUser)
+                
+                VStack(spacing: 32) {
+                    generalSettingsView
                     
-                    VStack(spacing: 32) {
-                        generalSettingsView
-                        
-                        Divider()
-                            .padding(.horizontal)
-                        
-                        notificationsSettingsView
-                        
-                        Divider()
-                            .padding(.horizontal)
-                        
-                        securitySettingsView
-                        
-                        Divider()
-                            .padding(.horizontal)
-                        
-                        dangerZoneSectionView
-                        signOutButton
-                    }
+                    Divider()
+                        .padding(.horizontal)
                     
+                    notificationsSettingsView
+                    
+                    Divider()
+                        .padding(.horizontal)
+                    
+                    securitySettingsView
+                    
+                    Divider()
+                        .padding(.horizontal)
+                    
+                    dangerZoneSectionView
+                    signOutButton
                 }
+                
             }
-            .withProfileRouter(path: $path)
-            .ignoresSafeArea()
-            .background(Color.gray5)
-            .errorPopup(showingPopup: $showPopup, errorMessage)
-            .signOutAlert(isPresented: $isSignOutAlertPresented) {
-                onSignOutConfirmedPressed()
-            }
-            .deleteAlert(isPresented: $isDeleteAlertPresented, deleteText: $deleteAlertText) {
-                onDeleteAccountConfirmedPressed()
-            }
-            .task {
-                await loadData()
-            }
+        }
+        .ignoresSafeArea()
+        .background(Color.gray5)
+        .errorPopup(showingPopup: $showPopup, errorMessage)
+        .signOutAlert(isPresented: $isSignOutAlertPresented) {
+            onSignOutConfirmedPressed()
+        }
+        .deleteAlert(isPresented: $isDeleteAlertPresented, deleteText: $deleteAlertText) {
+            onDeleteAccountConfirmedPressed()
+        }
+        .task {
+            await loadData()
         }
     }
     
@@ -196,19 +191,19 @@ struct ProfileView: View {
     }
     
     private func onProfileSettingsPressed() {
-        path.append(.profileInfo)
+        
     }
     
     private func onAppearanceModePressed() {
-        path.append(.profileAppearance)
+        
     }
     
     private func onExportDataButtonPressed() {
-        path.append(.profileExport)
+        
     }
     
     private func onAboutUsButtonPressed() {
-        path.append(.profileAbout)
+        
     }
     
     private func onDeleteAccountPressed() {

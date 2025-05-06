@@ -18,15 +18,11 @@ struct RouterViewModifier: ViewModifier {
             case .login:
                 LoginView()
             case .register:
-                Text("Register")
+                RegistrationView()
             case .setup(let email, let password):
                 ProfileSetupView(email: email, password: password)
             case .tabBar:
                 TabBarView()
-            case .receiptDetails(let receipt):
-                ReceiptDetailsView(receipt: receipt)
-            case .exportData:
-                ExportDataView()
             }
         }
         .navigationBarBackButtonHidden()

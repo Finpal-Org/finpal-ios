@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
+    @Environment(Router.self) private var router
+    @Environment(AppState.self) private var appState
     @Environment(AuthManager.self) private var authManager
     @Environment(UserManager.self) private var userManager
     
@@ -18,50 +20,45 @@ struct LoginView: View {
     @State private var isForgotPasswordPresented: Bool = false
     @State private var isLoggingIn = false
     
-    @State private var path: [NavigationPathOption] = []
-    
     var body: some View {
-        NavigationStack(path: $path) {
-            VStack {
-                VStack(spacing: 40) {
-                    // Logo and Title
-                    VStack(spacing: 24) {
-                        Image(.logoPlain)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 94, height: 94)
-                        
-                        Text("Sign In to finpal")
-                            .font(.system(size: 30, weight: .bold))
-                            .foregroundStyle(Color.gray80)
-                    }
+        VStack {
+            VStack(spacing: 40) {
+                // Logo and Title
+                VStack(spacing: 24) {
+                    Image(.logoPlain)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 94, height: 94)
                     
-                    // Fields
-                    VStack(spacing: 24) {
-                        emailAddressField
-                        passwordField
-                        rememberMeButton
-                    }
-                    
-                    // Buttons
-                    VStack(spacing: 12) {
-                        signInButton
-                        createNewAccountButton
-                    }
-                    
-                    forgotPasswordButton
+                    Text("Sign In to finpal")
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundStyle(Color.gray80)
                 }
-                .padding()
+                
+                // Fields
+                VStack(spacing: 24) {
+                    emailAddressField
+                    passwordField
+                    rememberMeButton
+                }
+                
+                // Buttons
+                VStack(spacing: 12) {
+                    signInButton
+                    createNewAccountButton
+                }
+                
+                forgotPasswordButton
             }
-            .navigationDestinationForCoreModule(path: $path)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.gray5)
-            .fullScreenCover(isPresented: $isForgotPasswordPresented) {
-                ForgotPasswordView()
-            }
-            .errorPopup(showingPopup: $viewModel.showPopup, viewModel.errorMessage) {
-                viewModel.clearErrors()
-            }
+            .padding()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.gray5)
+        .fullScreenCover(isPresented: $isForgotPasswordPresented) {
+            ForgotPasswordView()
+        }
+        .errorPopup(showingPopup: $viewModel.showPopup, viewModel.errorMessage) {
+            viewModel.clearErrors()
         }
     }
     
@@ -122,13 +119,11 @@ struct LoginView: View {
     }
     
     private var createNewAccountButton: some View {
-        NavigationLink {
-            RegistrationView(path: $path)
-                .navigationBarBackButtonHidden()
-        } label: {
-            Text("Create New Account")
-                .secondaryButton()
-        }
+        Text("Create New Account")
+            .secondaryButton()
+            .anyButton(.press) {
+                router.navigateToRegister()
+            }
     }
     
     private var forgotPasswordButton: some View {
@@ -149,8 +144,9 @@ struct LoginView: View {
             do {
                 try viewModel.validateForm()
                 
-                let result = try await authManager.signIn(withEmail: viewModel.email, password: viewModel.password)
-                try await userManager.fetchUser(auth: result)
+                let _ = try await authManager.signIn(withEmail: viewModel.email, password: viewModel.password)
+                
+                appState.showAuthScreen(showAuth: false)
             } catch let error as AppAuthError {
                 viewModel.showPopup = true
                 viewModel.errorMessage = error.localizedDescription

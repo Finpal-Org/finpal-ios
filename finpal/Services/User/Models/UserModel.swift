@@ -19,6 +19,10 @@ struct UserModel: Codable {
     
     var profileImageURL: String?
     
+    var firstName: String {
+        fullName?.split(separator: " ").first.map(String.init) ?? ""
+    }
+    
     init(
         userId: String,
         email: String? = nil,

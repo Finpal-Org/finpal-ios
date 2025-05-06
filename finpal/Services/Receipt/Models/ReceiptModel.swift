@@ -117,7 +117,7 @@ struct ReceiptModel: Identifiable, Codable, Hashable, StringIdentifiable {
                 id: "mock_receipt_1",
                 userId: UUID().uuidString,
                 category: .meal,
-                date: .now.addingTimeInterval(days: -14),
+                date: .now.addingTimeInterval(days: -1),
                 invoiceNumber: "123",
                 isDuplicate: false,
                 lineItems: LineItemModel.mocks,

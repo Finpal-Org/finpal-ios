@@ -1,5 +1,5 @@
 {
-  "originHash" : "eaee4b9f9851d32e6733db8e2877d811b1091f9402ba1e3f99ada6d9c95fde63",
+  "originHash" : "93fc008c6876c0371a14759148485aa0d3ecc310ea8d98bce4194cdf2d8d36bc",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "chartview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AppPear/ChartView.git",
+      "state" : {
+        "revision" : "caa75ecbc0d68f2b50d714909566406f80214186",
+        "version" : "2.0.0-beta.2"
       }
     },
     {

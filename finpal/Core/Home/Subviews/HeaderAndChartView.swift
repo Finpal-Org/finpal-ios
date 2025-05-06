@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct HeaderAndChartView: View {
+    let spending: [Double]
+    let percentChange: Double
+    
     let weekdayDayMonthFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE, d MMM"
@@ -19,6 +22,10 @@ struct HeaderAndChartView: View {
         formatter.dateFormat = "MMMM"  // Full month name
         return formatter
     }()
+    
+    var totalSpending: Double {
+        spending.reduce(0, +)
+    }
     
     var body: some View {
         GeometryReader { proxy in
@@ -44,9 +51,7 @@ struct HeaderAndChartView: View {
                     
                     Spacer()
                 }
-                
             }
-            
         }
         .frame(height: 412)
     }
@@ -65,32 +70,62 @@ struct HeaderAndChartView: View {
     }
     
     private var monthSpending: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("\(fullMonthNameFormatter.string(from: .now).uppercased()) SPENDING")
-                .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(Color.brand50)
-                .kerning(1.5)
+        VStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("\(fullMonthNameFormatter.string(from: .now).uppercased()) SPENDING")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.brand40)
+                    .kerning(1.5)
+                
+                Text(totalSpending, format: .currency(code: "SAR"))
+                    .font(.system(size: 48, weight: .bold))
+                    .foregroundStyle(Color.white)
+                
+                percentageChangeView
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
             
-            Text("SAR 0.00")
-                .font(.system(size: 48, weight: .bold))
-                .foregroundStyle(Color.white)
-            
-            Text("- No data detected")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(Color.white)
+            LineGraphView(spending: spending)
         }
-        .padding(.horizontal, 16)
     }
+    
+    private var percentageChangeView: some View {
+        Group {
+            if totalSpending == 0.0 {
+                HStack(spacing: 4) {
+                    Image(systemName: "minus")
+                    
+                    Text("No data detected")
+                }
+            } else {
+                HStack(spacing: 4) {
+                    if percentChange < 0 {
+                        Image(systemName: "arrow.down")
+                    } else {
+                        Image(systemName: "arrow.up")
+                    }
+                    
+                    Text(String(format: "%.1f%%", percentChange))
+                    
+                    Text("vs last month")
+                }
+            }
+        }
+        .font(.system(size: 14, weight: .bold))
+        .foregroundStyle(Color.white)
+    }
+    
 }
 
 private struct PreviewView: View {
     var body: some View {
         ScrollView {
             VStack {
-                HeaderAndChartView()
-                MostSpentCategoriesView()
-                LatestReceiptsView()
-                SpendingOverviewView()
+                HeaderAndChartView(
+                    spending: [0, 34, 23, 2.43, 54, 3.2, 80],
+                    percentChange: 32.4
+                )
             }
         }
         .background(Color.gray5)

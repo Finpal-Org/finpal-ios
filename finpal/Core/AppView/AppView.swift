@@ -21,13 +21,18 @@ struct AppView: View {
                 ZStack {
                     if appState.showAuthentication {
                         LoginView()
+                            .transition(.move(edge: .leading))
                     } else {
                         TabBarView()
+                            .transition(.move(edge: .trailing))
                     }
                 }
+                .animation(.smooth, value: appState.showAuthentication)
+                .withRouter()
             },
             onboarding: {
                 WelcomeView()
+                    .withRouter()
             }
         )
         .environment(tabBar)
@@ -36,7 +41,6 @@ struct AppView: View {
             await checkUserStatus()
         }
         .onChange(of: appState.showTabBar) { _, showTabBar in
-            print("showTabBar: \(showTabBar)")
             Task {
                 await checkUserStatus()
             }
